@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NWSDB - Matara Regional Office</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-2 sidebar p-0 d-none d-md-block">
+            <div class="brand">
+                <i class="bi bi-droplet"></i> NWSDB
+                <small data-i18n="Matara Regional Office">Matara Regional Office</small>
+            </div>
+            <nav class="nav flex-column">
+                <div class="section-label" data-i18n="Workflow">Workflow</div>
+                <a class="nav-link active" data-page="dashboard" onclick="navigate('dashboard')"><i class="bi bi-speedometer2"></i> <span data-i18n="Dashboard">Dashboard</span></a>
+                <a class="nav-link" data-page="dcs-customers" onclick="navigate('dcs-customers')"><i class="bi bi-people"></i> <span data-i18n="DCs Customers">DCs Customers</span></a>
+                <a class="nav-link" data-page="reconnected" onclick="navigate('reconnected')"><i class="bi bi-arrow-repeat"></i> <span data-i18n="Reconnected">Reconnected</span></a>
+                <a class="nav-link" data-page="first-reminders" onclick="navigate('first-reminders')"><i class="bi bi-envelope"></i> <span data-i18n="First Reminders">First Reminders</span></a>
+                <a class="nav-link" data-page="ferrule-processing" onclick="navigate('ferrule-processing')"><i class="bi bi-tools"></i> <span data-i18n="Ferrule Processing">Ferrule Processing</span></a>
+                <a class="nav-link" data-page="oic-orders" onclick="navigate('oic-orders')"><i class="bi bi-water"></i> <span data-i18n="OIC Orders">OIC Orders</span></a>
+                <a class="nav-link" data-page="second-reminders" onclick="navigate('second-reminders')"><i class="bi bi-envelope-open"></i> <span data-i18n="Second Reminders">Second Reminders</span></a>
+                <a class="nav-link" data-page="legal-proceed" onclick="navigate('legal-proceed')"><i class="bi bi-gavel"></i> <span data-i18n="Legal Proceed">Legal Proceed</span></a>
+                <hr style="border-color:rgba(255,255,255,0.1);margin:0.5rem 1rem;">
+                <div class="section-label" data-i18n="System">System</div>
+                <a class="nav-link" data-page="import" onclick="navigate('import')"><i class="bi bi-upload"></i> <span data-i18n="Import Data">Import Data</span></a>
+            </nav>
+            <div class="lang-switch mt-auto position-absolute bottom-0 start-0 end-0 p-3">
+                <i class="bi bi-globe2"></i>
+                <a data-lang="si" onclick="setLang('si')" class="active" data-i18n="Sinhala">Sinhala</a> |
+                <a data-lang="en" onclick="setLang('en')" data-i18n="English">English</a>
+            </div>
+        </div>
+
+        <!-- Mobile nav -->
+        <nav class="mobile-nav bg-dark p-2 w-100">
+            <select class="form-select form-select-sm" onchange="navigate(this.value)">
+                <option value="dashboard">Dashboard</option>
+                <option value="dcs-customers">DCs Customers</option>
+                <option value="reconnected">Reconnected</option>
+                <option value="first-reminders">First Reminders</option>
+                <option value="ferrule-processing">Ferrule Processing</option>
+                <option value="oic-orders">OIC Orders</option>
+                <option value="second-reminders">Second Reminders</option>
+                <option value="legal-proceed">Legal Proceed</option>
+                <option value="import">Import Data</option>
+            </select>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="col-md-10 main-content">
+
+            <!-- Dashboard -->
+            <div class="page active" id="page-dashboard">
+                <div class="page-title"><i class="bi bi-speedometer2"></i> <span data-i18n="Dashboard">Dashboard</span> <small class="text-muted" style="font-size:0.9rem;">NWSDB - <span data-i18n="Matara Regional Office">Matara Regional Office</span></small></div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3"><div class="stat-card text-center"><div class="icon"><i class="bi bi-people text-primary"></i></div><div class="number" id="dash-total">0</div><div class="label" data-i18n="Total DCs Customers">Total DCs Customers</div></div></div>
+                    <div class="col-md-3"><div class="stat-card text-center"><div class="icon"><i class="bi bi-slash-circle text-danger"></i></div><div class="number" id="dash-disconnected">0</div><div class="label" data-i18n="Currently Disconnected">Currently Disconnected</div></div></div>
+                    <div class="col-md-3"><div class="stat-card text-center"><div class="icon"><i class="bi bi-arrow-repeat text-success"></i></div><div class="number" id="dash-reconnected">0</div><div class="label" data-i18n="Reconnections">Reconnections</div></div></div>
+                    <div class="col-md-3"><div class="stat-card text-center"><div class="icon"><i class="bi bi-gavel text-danger"></i></div><div class="number" id="dash-legal">0</div><div class="label" data-i18n="Legal Action Initiated">Legal Action Initiated</div></div></div>
+                </div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3"><div class="stat-card text-center"><div class="icon"><i class="bi bi-envelope text-info"></i></div><div class="number" id="dash-first-sent">0</div><div class="label" data-i18n="First Reminder Sent">First Reminder Sent</div></div></div>
+                    <div class="col-md-3"><div class="stat-card text-center"><div class="icon"><i class="bi bi-tools text-warning"></i></div><div class="number" id="dash-ferrule">0</div><div class="label" data-i18n="Ferrule Processing Pending">Ferrule Processing Pending</div></div></div>
+                    <div class="col-md-3"><div class="stat-card text-center"><div class="icon"><i class="bi bi-water text-warning"></i></div><div class="number" id="dash-oic">0</div><div class="label" data-i18n="OIC Issued">OIC Issued</div></div></div>
+                    <div class="col-md-3"><div class="stat-card text-center"><div class="icon"><i class="bi bi-arrow-return-left text-danger"></i></div><div class="number" id="dash-returned">0</div><div class="label" data-i18n="Returned Mail">Returned Mail</div></div></div>
+                </div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3"><div class="stat-card text-center"><div class="icon"><i class="bi bi-envelope-open text-info"></i></div><div class="number" id="dash-second-sent">0</div><div class="label" data-i18n="Second Reminder Sent">Second Reminder Sent</div></div></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="table-container">
+                            <h5 class="mb-3"><i class="bi bi-clock-history"></i> <span data-i18n="Recently DCs Customers">Recently DCs Customers</span></h5>
+                            <div class="table-responsive"><table class="table table-hover"><thead class="table-light"><tr><th data-i18n="Account No">Account No</th><th data-i18n="Customer Name">Customer Name</th><th data-i18n="Scheme">Scheme</th><th data-i18n="Stage">Stage</th><th></th></tr></thead><tbody id="dash-recent"></tbody></table></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="table-container">
+                            <h5 class="mb-3"><i class="bi bi-lightning"></i> <span data-i18n="Quick Actions">Quick Actions</span></h5>
+                            <div class="d-grid gap-2">
+                                <a class="btn btn-nwsdb" href="javascript:void(0)" onclick="navigate('dcs-customers')"><i class="bi bi-people"></i> <span data-i18n="DCs Customers">DCs Customers</span></a>
+                                <a class="btn btn-outline-info" href="javascript:void(0)" onclick="navigate('first-reminders')"><i class="bi bi-envelope"></i> <span data-i18n="First Reminders">First Reminders</span></a>
+                                <a class="btn btn-outline-warning" href="javascript:void(0)" onclick="navigate('oic-orders')"><i class="bi bi-water"></i> <span data-i18n="OIC Orders">OIC Orders</span></a>
+                                <a class="btn btn-outline-danger" href="javascript:void(0)" onclick="navigate('legal-proceed')"><i class="bi bi-gavel"></i> <span data-i18n="Legal Proceed">Legal Proceed</span></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DCs Customers -->
+            <div class="page" id="page-dcs-customers">
+                <div class="page-title"><i class="bi bi-people"></i> <span data-i18n="DCs Customer Management">DCs Customer Management</span></div>
+                <form class="row g-2 mb-3" onsubmit="event.preventDefault(); renderDCsCustomers();">
+                    <div class="col-md-3"><input type="text" id="dcs-search" class="form-control" placeholder="Search..." oninput="renderDCsCustomers()"></div>
+                    <div class="col-md-2"><select id="dcs-stage" class="form-select" onchange="renderDCsCustomers()"></select></div>
+                    <div class="col-md-2"><select id="dcs-scheme" class="form-select" onchange="renderDCsCustomers()"></select></div>
+                    <div class="col-md-1"><span class="badge bg-secondary p-2 mt-1"><span id="dcs-count">0</span> <span data-i18n="Total">Total</span></span></div>
+                </form>
+                <div class="table-container">
+                    <div class="table-responsive"><table class="table table-hover"><thead class="table-light"><tr><th data-i18n="Account No">Account No</th><th data-i18n="Customer Name">Customer Name</th><th data-i18n="Scheme">Scheme</th><th data-i18n="Outstanding Amount">Outstanding Amount</th><th data-i18n="Stage">Stage</th><th data-i18n="Zone">Zone</th><th></th></tr></thead><tbody id="dcs-table"></tbody></table></div>
+                </div>
+            </div>
+
+            <!-- Reconnected -->
+            <div class="page" id="page-reconnected">
+                <div class="page-title"><i class="bi bi-arrow-repeat"></i> <span data-i18n="Reconnected Customers">Reconnected Customers</span></div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6"><div class="table-container"><h5 class="mb-3"><i class="bi bi-check-circle text-success"></i> <span data-i18n="Reconnected">Reconnected</span></h5><div id="rec-reconnected-list"></div></div></div>
+                    <div class="col-md-6"><div class="table-container"><h5 class="mb-3"><i class="bi bi-upload"></i> <span data-i18n="Upload Reconnected List">Upload Reconnected List</span></h5><p class="text-muted small">Upload CSV with Account No column.</p></div></div>
+                </div>
+                <div class="table-container">
+                    <h5 class="mb-3"><i class="bi bi-people"></i> <span data-i18n="Mark Selected as Reconnected">Mark Selected as Reconnected</span></h5>
+                    <form class="row g-2 mb-3" onsubmit="event.preventDefault(); renderReconnected();">
+                        <div class="col-md-4"><input type="text" id="rec-search" class="form-control" placeholder="Search..." oninput="renderReconnected()"></div>
+                        <div class="col-md-2"><select id="rec-scheme" class="form-select" onchange="renderReconnected()"></select></div>
+                    </form>
+                    <div class="table-responsive"><table class="table table-hover"><thead class="table-light"><tr><th width="40"></th><th data-i18n="Account No">Account No</th><th data-i18n="Customer Name">Customer Name</th><th data-i18n="Scheme">Scheme</th><th data-i18n="Outstanding Amount">Outstanding Amount</th><th data-i18n="Stage">Stage</th></tr></thead><tbody id="rec-table"></tbody></table></div>
+                </div>
+            </div>
+
+            <!-- First Reminders -->
+            <div class="page" id="page-first-reminders">
+                <div class="page-title"><i class="bi bi-envelope"></i> <span data-i18n="First Reminder Letters">First Reminder Letters</span></div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-2"><div class="stat-card text-center"><div class="number" id="fr-total">0</div><div class="label" data-i18n="Total Letters">Total Letters</div></div></div>
+                    <div class="col-md-2"><div class="stat-card text-center"><div class="number text-secondary" id="fr-pending">0</div><div class="label" data-i18n="Awaiting Printing">Awaiting Printing</div></div></div>
+                    <div class="col-md-2"><div class="stat-card text-center"><div class="number text-primary" id="fr-sent">0</div><div class="label" data-i18n="Sent">Sent</div></div></div>
+                    <div class="col-md-2"><div class="stat-card text-center"><div class="number text-success" id="fr-delivered">0</div><div class="label" data-i18n="Delivered">Delivered</div></div></div>
+                    <div class="col-md-2"><div class="stat-card text-center"><div class="number text-danger" id="fr-returned">0</div><div class="label" data-i18n="Returned">Returned</div></div></div>
+                </div>
+                <form class="row g-2 mb-3" onsubmit="event.preventDefault(); renderFirstReminders();">
+                    <div class="col-md-3"><input type="text" id="fr-search" class="form-control" placeholder="Account No / Name / Address..." oninput="renderFirstReminders()"></div>
+                    <div class="col-md-2"><select id="fr-scheme" class="form-select" onchange="renderFirstReminders()"></select></div>
+                    <div class="col-md-2"><select id="fr-status" class="form-select" onchange="renderFirstReminders()"><option value="">All Status</option><option value="pending">Pending</option><option value="sent">Sent</option><option value="returned">Returned</option><option value="delivered">Delivered</option></select></div>
+                </form>
+                <div class="table-container"><div class="table-responsive"><table class="table table-hover"><thead class="table-light"><tr><th data-i18n="Account No">Account No</th><th data-i18n="Customer Name">Customer Name</th><th data-i18n="Category">Category</th><th data-i18n="Date">Date</th><th data-i18n="Sent">Sent</th><th data-i18n="Status">Status</th><th data-i18n="Returned">Returned</th></tr></thead><tbody id="fr-table"></tbody></table></div></div>
+            </div>
+
+            <!-- Ferrule Processing -->
+            <div class="page" id="page-ferrule-processing">
+                <div class="page-title"><i class="bi bi-tools"></i> <span data-i18n="Ferrule Processing">Ferrule Processing</span></div>
+                <div class="row g-2 mb-3">
+                    <div class="col-md-5"><div class="alert alert-info mb-0"><i class="bi bi-info-circle"></i> <span data-i18n="Customers Awaiting Ferrule Decision">Customers Awaiting Ferrule Decision</span></div></div>
+                    <div class="col-md-7">
+                        <form class="row g-2" onsubmit="event.preventDefault(); renderFerruleProcessing();">
+                            <div class="col-md-5"><input type="text" id="fp-search" class="form-control" placeholder="Account No / Name / Address..." oninput="renderFerruleProcessing()"></div>
+                            <div class="col-md-4"><select id="fp-scheme" class="form-select" onchange="renderFerruleProcessing()"></select></div>
+                        </form>
+                    </div>
+                </div>
+                <div class="table-container"><div class="table-responsive"><table class="table table-hover"><thead class="table-light"><tr><th data-i18n="Account No">Account No</th><th data-i18n="Customer Name">Customer Name</th><th data-i18n="Scheme">Scheme</th><th data-i18n="Outstanding Amount">Outstanding Amount</th><th data-i18n="Stage">Stage</th><th data-i18n="Stage Note">Stage Note</th><th data-i18n="Action">Action</th></tr></thead><tbody id="fp-table"></tbody></table></div></div>
+            </div>
+
+            <!-- OIC Orders -->
+            <div class="page" id="page-oic-orders">
+                <div class="page-title"><i class="bi bi-water"></i> <span data-i18n="OIC Orders">OIC Orders</span></div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4"><div class="stat-card text-center"><div class="number" id="oic-total">0</div><div class="label" data-i18n="Total Orders">Total Orders</div></div></div>
+                    <div class="col-md-4"><div class="stat-card text-center"><div class="number text-warning" id="oic-pending">0</div><div class="label" data-i18n="Awaiting Execution">Awaiting Execution</div></div></div>
+                    <div class="col-md-4"><div class="stat-card text-center"><div class="number text-success" id="oic-completed">0</div><div class="label" data-i18n="Completed">Completed</div></div></div>
+                </div>
+                <form class="row g-2 mb-3" onsubmit="event.preventDefault(); renderOICOrders();">
+                    <div class="col-md-3"><input type="text" id="oic-search" class="form-control" placeholder="Account No / Name / Address..." oninput="renderOICOrders()"></div>
+                    <div class="col-md-2"><select id="oic-scheme" class="form-select" onchange="renderOICOrders()"></select></div>
+                    <div class="col-md-2"><select id="oic-status" class="form-select" onchange="renderOICOrders()"><option value="">All</option><option value="pending">Pending</option><option value="completed">Completed</option></select></div>
+                </form>
+                <div class="table-container"><div class="table-responsive"><table class="table table-hover"><thead class="table-light"><tr><th data-i18n="Reference No">Reference No</th><th data-i18n="Account No">Account No</th><th data-i18n="Customer Name">Customer Name</th><th data-i18n="Scheme">Scheme</th><th data-i18n="Outstanding Amount">Outstanding</th><th data-i18n="Total Amount Due">Total Due</th><th data-i18n="Order Date">Order Date</th><th data-i18n="Status">Status</th></tr></thead><tbody id="oic-table"></tbody></table></div></div>
+            </div>
+
+            <!-- Second Reminders -->
+            <div class="page" id="page-second-reminders">
+                <div class="page-title"><i class="bi bi-envelope-open"></i> <span data-i18n="Second Reminder Letters">Second Reminder Letters</span></div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-2"><div class="stat-card text-center"><div class="number" id="sr-total">0</div><div class="label" data-i18n="Total Letters">Total Letters</div></div></div>
+                    <div class="col-md-2"><div class="stat-card text-center"><div class="number text-secondary" id="sr-pending">0</div><div class="label" data-i18n="Awaiting Printing">Awaiting Printing</div></div></div>
+                    <div class="col-md-2"><div class="stat-card text-center"><div class="number text-primary" id="sr-sent">0</div><div class="label" data-i18n="Sent">Sent</div></div></div>
+                    <div class="col-md-2"><div class="stat-card text-center"><div class="number text-success" id="sr-delivered">0</div><div class="label" data-i18n="Delivered">Delivered</div></div></div>
+                    <div class="col-md-2"><div class="stat-card text-center"><div class="number text-danger" id="sr-returned">0</div><div class="label" data-i18n="Returned">Returned</div></div></div>
+                </div>
+                <form class="row g-2 mb-3" onsubmit="event.preventDefault(); renderSecondReminders();">
+                    <div class="col-md-3"><input type="text" id="sr-search" class="form-control" placeholder="Account No / Name / Address..." oninput="renderSecondReminders()"></div>
+                    <div class="col-md-2"><select id="sr-scheme" class="form-select" onchange="renderSecondReminders()"></select></div>
+                    <div class="col-md-2"><select id="sr-status" class="form-select" onchange="renderSecondReminders()"><option value="">All Status</option><option value="pending">Pending</option><option value="sent">Sent</option><option value="returned">Returned</option><option value="delivered">Delivered</option></select></div>
+                </form>
+                <div class="table-container"><div class="table-responsive"><table class="table table-hover"><thead class="table-light"><tr><th data-i18n="Account No">Account No</th><th data-i18n="Customer Name">Customer Name</th><th data-i18n="Category">Category</th><th data-i18n="Date">Date</th><th data-i18n="Sent">Sent</th><th data-i18n="Status">Status</th><th data-i18n="Returned">Returned</th></tr></thead><tbody id="sr-table"></tbody></table></div></div>
+            </div>
+
+            <!-- Legal Proceed -->
+            <div class="page" id="page-legal-proceed">
+                <div class="page-title"><i class="bi bi-gavel"></i> <span data-i18n="Legal Proceed">Legal Proceed</span></div>
+                <div class="row g-2 mb-3">
+                    <div class="col-md-5"><div class="alert alert-info mb-0"><i class="bi bi-info-circle"></i> <span data-i18n="Customers for Legal Action">Customers for Legal Action</span></div></div>
+                    <div class="col-md-7">
+                        <form class="row g-2" onsubmit="event.preventDefault(); renderLegalProceed();">
+                            <div class="col-md-4"><input type="text" id="lp-search" class="form-control" placeholder="Account No / Name / Address..." oninput="renderLegalProceed()"></div>
+                            <div class="col-md-3"><select id="lp-scheme" class="form-select" onchange="renderLegalProceed()"></select></div>
+                        </form>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <h5 class="mb-3"><span data-i18n="Customers for Legal Action">Customers for Legal Action</span> (<span id="lp-count">0</span>)</h5>
+                    <div class="table-responsive"><table class="table table-hover"><thead class="table-light"><tr><th>#</th><th data-i18n="Account No">Account No</th><th data-i18n="Customer Name">Customer Name</th><th data-i18n="Scheme">Scheme</th><th data-i18n="Category">Category</th><th data-i18n="Outstanding Amount">Outstanding Amount</th><th data-i18n="Address">Address</th></tr></thead><tbody id="lp-table"></tbody></table></div>
+                </div>
+            </div>
+
+            <!-- Customer Detail -->
+            <div class="page" id="page-customer-detail">
+                <div class="page-title"><i class="bi bi-person"></i> <span data-i18n="Customer Details">Customer Details</span></div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-8">
+                        <div class="table-container">
+                            <h5 class="mb-3"><span data-i18n="DCs Customer Info">DCs Customer Info</span></h5>
+                            <table class="table"><tr><th data-i18n="Account No">Account No</th><td><code id="cd-account"></code></td></tr><tr><th data-i18n="Customer Name">Customer Name</th><td id="cd-name"></td></tr><tr><th data-i18n="Address">Address</th><td id="cd-address"></td></tr><tr><th data-i18n="Phone">Phone</th><td id="cd-phone"></td></tr><tr><th data-i18n="Scheme">Scheme</th><td id="cd-scheme"></td></tr><tr><th data-i18n="Category">Category</th><td id="cd-category"></td></tr><tr><th data-i18n="Zone">Zone</th><td id="cd-zone"></td></tr><tr><th data-i18n="Stage">Stage</th><td id="cd-stage"></td></tr><tr><th data-i18n="Stage Note">Stage Note</th><td id="cd-note"></td></tr></table>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-container mb-3"><h5 class="mb-3"><span data-i18n="Disconnection History">Disconnection History</span></h5><div class="table-responsive"><table class="table table-hover"><thead class="table-light"><tr><th data-i18n="Disconnection Date">Disconnection Date</th><th data-i18n="Last Reading">Last Reading</th><th data-i18n="Last Read Date">Last Read Date</th><th data-i18n="Reason">Reason</th><th data-i18n="Amount">Amount</th></tr></thead><tbody id="cd-disconnections"></tbody></table></div></div>
+                <div class="table-container mb-3"><h5 class="mb-3"><span data-i18n="Letter Management">Letter Management</span></h5><div class="table-responsive"><table class="table table-hover"><thead class="table-light"><tr><th>Type</th><th data-i18n="Date">Date</th><th data-i18n="Status">Status</th><th data-i18n="Remarks">Remarks</th></tr></thead><tbody id="cd-letters"></tbody></table></div></div>
+                <div class="table-container mb-3"><h5 class="mb-3">OIC Orders</h5><div class="table-responsive"><table class="table table-hover"><thead class="table-light"><tr><th data-i18n="Reference No">Reference No</th><th data-i18n="Order Date">Order Date</th><th data-i18n="Status">Status</th><th data-i18n="Total Amount Due">Total Amount Due</th></tr></thead><tbody id="cd-oic"></tbody></table></div></div>
+                <a class="btn btn-nwsdb" href="javascript:void(0)" onclick="history.back()"><i class="bi bi-arrow-left"></i> Back</a>
+            </div>
+
+            <!-- Import page -->
+            <div class="page" id="page-import">
+                <div class="page-title"><i class="bi bi-upload"></i> <span data-i18n="Import Disconnected Customer Data">Import Disconnected Customer Data</span></div>
+                <div class="row"><div class="col-md-6">
+                    <div class="table-container">
+                        <h5 class="mb-3"><span data-i18n="Import from Storage Directly">Import from Storage Directly</span></h5>
+                        <p class="text-muted small">Static demo version - data is pre-loaded from data.js (55 customers).</p>
+                        <div class="alert alert-info">This is a static demo. All data is embedded in JavaScript. The live Flask app supports Excel/CSV import from the storage folder or file upload.</div>
+                            <p><strong>Customers loaded:</strong> <span id="import-count">55</span></p>
+                    </div>
+                </div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+body { font-family: 'Iskoola Pota', 'Noto Sans Sinhala', 'Segoe UI', sans-serif; background-color: #f5f7fa; }
+.sidebar { background: linear-gradient(180deg, #1a3a5c 0%, #0d2137 100%); min-height: 100vh; padding-top: 1rem; }
+.sidebar .nav-link { color: rgba(255,255,255,0.8); padding: 0.65rem 1rem; border-radius: 0.5rem; margin: 0.15rem 0.5rem; transition: all 0.2s; font-size: 0.9rem; cursor: pointer; }
+.sidebar .nav-link:hover { color: #fff; background: rgba(255,255,255,0.1); }
+.sidebar .nav-link.active { color: #fff; background: rgba(255,255,255,0.2); }
+.sidebar .nav-link i { margin-right: 0.4rem; width: 1.1rem; }
+.sidebar .brand { color: #fff; padding: 1rem; font-size: 1rem; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 0.5rem; }
+.sidebar .brand small { display: block; font-size: 0.7rem; font-weight: normal; opacity: 0.7; }
+.sidebar .section-label { color: rgba(255,255,255,0.4); font-size: 0.7rem; text-transform: uppercase; padding: 0.8rem 1rem 0.2rem; letter-spacing: 1px; }
+.main-content { padding: 2rem; }
+.stat-card { background: #fff; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: all 0.2s; border: 1px solid #eef0f3; }
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+.stat-card .icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.stat-card .number { font-size: 1.8rem; font-weight: bold; color: #1a3a5c; }
+.stat-card .label { font-size: 0.85rem; color: #6b7a8a; }
+.table-container { background: #fff; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #eef0f3; }
+.btn-nwsdb { background-color: #1a3a5c; color: #fff; }
+.btn-nwsdb:hover { background-color: #0d2137; color: #fff; }
+.badge-status { padding: 0.35rem 0.65rem; font-size: 0.8rem; }
+.page-title { font-size: 1.4rem; font-weight: 600; color: #1a3a5c; margin-bottom: 1.5rem; }
+.lang-switch { color: rgba(255,255,255,0.6); padding: 0.5rem 1rem; font-size: 0.85rem; }
+.lang-switch a { color: rgba(255,255,255,0.6); text-decoration: none; padding: 0.2rem 0.4rem; border-radius: 0.3rem; cursor: pointer; }
+.lang-switch a:hover, .lang-switch a.active { color: #fff; background: rgba(255,255,255,0.15); }
+.badge-stage { font-size: 0.75rem; }
+.page { display: none; }
+.page.active { display: block; }
+.scheme-badge { background-color: #6c757d; color: #fff; }
+@media print { .sidebar, .no-print { display: none; } .main-content { margin-left: 0; padding: 0; } }
+.mobile-nav { display: none; }
+@media (max-width: 767px) { .sidebar { display: none; } .main-content { padding: 1rem; } .mobile-nav { display: block; } .stat-card .number { font-size: 1.3rem; } }
