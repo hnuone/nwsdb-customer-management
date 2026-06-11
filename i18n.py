@@ -1,0 +1,180 @@
+TRANSLATIONS = {
+    'en': {},
+    'si': {
+        # ── General / Layout ──
+        'NWSDB - Matara Regional Office': 'NWSDB - මාතර ප්‍රාදේශීය කාර්යාලය',
+        'Matara Regional Office': 'මාතර ප්‍රාදේශීය කාර්යාලය',
+        'Dashboard': 'දළ විශ්ලේෂණය',
+        'DCs Customers': 'DCs පාරිභෝගිකයන්',
+        'Reconnected': 'නැවත සම්බන්ධ කරන ලද',
+        'First Reminders': 'පළමු සිහිකැඳවීම්',
+        'Ferrule Processing': 'Ferrule සැකසුම',
+        'OIC Orders': 'OIC නියෝග',
+        'Second Reminders': 'දෙවන සිහිකැඳවීම්',
+        'Legal Proceed': 'නීතිමය කටයුතු',
+        'Import Data': 'දත්ත ආයාත කරන්න',
+        'Quick Actions': 'ඉක්මන් ක්‍රියාමාර්ග',
+        'Search': 'සොයන්න',
+        'Status': 'තත්ත්වය',
+        'Action': 'ක්‍රියාව',
+        'Actions': 'ක්‍රියා',
+        'Zone': 'කලාපය',
+        'Scheme': 'ජලසම්පාදන ක්‍රමය',
+        'Category': 'වර්ගය',
+        'Date': 'දිනය',
+        'Amount': 'මුදල',
+        'Total': 'මුළු',
+        'Pending': 'බලා සිටී',
+        'Sent': 'යවන ලදී',
+        'Returned': 'ආපසු පැමිණි',
+        'Delivered': 'ලබා දුන්',
+        'Completed': 'සම්පූර්ණයි',
+        'All': 'සියල්ල',
+        'Select': 'තෝරන්න',
+        'Confirm': 'තහවුරු කරන්න',
+        'Cancel': 'අවලංගු කරන්න',
+        'Save': 'සුරකින්න',
+        'Download PDF': 'PDF බාගන්න',
+        'Print All': 'සියල්ල මුද්‍රණය කරන්න',
+        'Generate': 'ජනනය කරන්න',
+        'No records found': 'වාර්තා නොමැත',
+        'Export': 'නිර්යාත කරන්න',
+        'Import': 'ආයාත කරන්න',
+        'Remarks': 'සටහන්',
+        'Address': 'ලිපිනය',
+        'Phone': 'දුරකථන',
+        'Account No': 'ගිණුම් අංකය',
+        'Customer Name': 'පාරිභෝගික නම',
+        'Customer Details': 'පාරිභෝගික තොරතුරු',
+        'Reference No': 'යොමු අංකය',
+        'Order Date': 'නියෝග දිනය',
+        'Completed Date': 'සම්පූර්ණ කළ දිනය',
+        'Stage': 'අදියර',
+        'Scheme Name': 'ජලසම්පාදන ක්‍රමය',
+        'Stage Note': 'සටහන',
+        'All Schemes': 'සියලුම ජලසම්පාදන ක්‍රම',
+
+        # ── Workflow Stages ──
+        'stage_disconnected': 'DCs පාරිභෝගිකයා',
+        'stage_reconnected': 'නැවත සම්බන්ධ කරන ලද',
+        'stage_first_reminder': 'පළමු සිහිකැඳවීම',
+        'stage_ferrule_hold': 'Ferrule රඳවා ඇත',
+        'stage_ferrule_approved': 'Ferrule සඳහා අනුමත',
+        'stage_oic_issued': 'OIC නියෝග නිකුත් කරන ලද',
+        'stage_second_reminder': 'දෙවන සිහිකැඳවීම',
+        'stage_legal': 'නීතිමය කටයුතු',
+
+        # ── Status Badges ──
+        'badge_disconnected': 'විසන්ධි',
+        'badge_reconnected': 'නැවත සම්බන්ධ',
+        'badge_pending': 'මුද්‍රණයට බලා සිටී',
+        'badge_sent': 'යවන ලදී',
+        'badge_returned': 'ආපසු පැමිණි',
+        'badge_delivered': 'ලබා දුන්',
+        'badge_awaiting': 'ක්‍රියාත්මක කිරීමට බලා සිටී',
+        'badge_completed': 'සම්පූර්ණ කරන ලදී',
+        'badge_ferrule_hold': 'රඳවා ඇත',
+        'badge_ferrule_approved': 'අනුමතයි',
+        'badge_legal': 'නීතිමය',
+
+        # ── Dashboard ──
+        'Total DCs Customers': 'මුළු DCs පාරිභෝගිකයන්',
+        'First Reminder Sent': 'පළමු සිහිකැඳවීම් යවන ලදී',
+        'Ferrule Processing Pending': 'Ferrule සැකසුමට බලා සිටී',
+        'OIC Issued': 'OIC නිකුත් කරන ලදී',
+        'Second Reminder Sent': 'දෙවන සිහිකැඳවීම් යවන ලදී',
+        'Legal Action Initiated': 'නීතිමය කටයුතු වලට යොමු කර ඇත',
+        'Reconnections': 'නැවත සම්බන්ධ කරන ලද',
+        'Returned Mail': 'ආපසු හරවා එවන ලද තැපෑල',
+        'Recently DCs Customers': 'මෑතකදී එකතු කළ DCs පාරිභෝගිකයන්',
+        'No customers yet': 'තවම පාරිභෝගිකයන් නොමැත',
+        'Import from Storage': 'ගබඩාවෙන් ආයාත කරන්න',
+
+        # ── DCs Customers Page ──
+        'DCs Customer Management': 'DCs පාරිභෝගික කළමනාකරණය',
+        'Account No / Name / Address': 'ගිණුම් අංකය / නම / ලිපිනය',
+        'All Stages': 'සියලුම අදියර',
+        'Outstanding Amount': 'හිඟ මුදල',
+        'Total Customers': 'මුළු පාරිභෝගිකයන්',
+        'DCs Customer Info': 'DCs පාරිභෝගික තොරතුරු',
+        'Disconnection History': 'විසන්ධි ඉතිහාසය',
+        'Disconnection Date': 'විසන්ධි කළ දිනය',
+        'Last Reading': 'අවසන් කියවීම',
+        'Last Read Date': 'අවසන් කියවීම් දිනය',
+        'Reason': 'හේතුව',
+        'Reconnection Charge': 'නැවත සම්බන්ධ ගාස්තුව',
+        'Total Amount Due': 'මුළු එකතුව',
+
+        # ── Reconnected Page ──
+        'Reconnected Customers': 'නැවත සම්බන්ධ කරන ලද පාරිභෝගිකයන්',
+        'Upload Reconnected List': 'නැවත සම්බන්ධ කළ ලැයිස්තුව උඩුගත කරන්න',
+        'Mark Selected as Reconnected': 'තෝරාගත් ඒවා නැවත සම්බන්ධ කළ ලෙස සලකුණු කරන්න',
+        'Mark as Reconnected': 'නැවත සම්බන්ධ කළ ලෙස සලකුණු කරන්න',
+        'Reconnection Date': 'නැවත සම්බන්ධ කළ දිනය',
+        'Upload CSV with Account No column': 'ගිණුම් අංක තීරුව සහිත CSV උඩුගත කරන්න',
+        'Reconnected successfully': 'නැවත සම්බන්ධ කරන ලදී',
+        'Reconnect selected from DCs list': 'DCs ලැයිස්තුවෙන් තෝරාගත් ඒවා නැවත සම්බන්ධ කරන්න',
+
+        # ── First Reminders Page ──
+        'First Reminder Letters': 'පළමු සිහිකැඳවීම් ලිපි',
+        'Generate First Reminders': 'පළමු සිහිකැඳවීම් ජනනය කරන්න',
+        'Print First Reminders': 'සියලු පළමු සිහිකැඳවීම් මුද්‍රණය කරන්න',
+        'Generate First Reminder Letters': 'පළමු සිහිකැඳවීම් ලිපි ජනනය කරන්න',
+        'Total Letters': 'මුළු ලිපි',
+        'Awaiting Printing': 'මුද්‍රණයට බලා සිටී',
+        'All Status': 'සියලුම තත්ත්ව',
+        'Letter Management': 'ලිපි කළමනාකරණය',
+
+        # ── Ferrule Processing Page ──
+        'Ferrule Processing': 'Ferrule සැකසුම',
+        'Customers Awaiting Ferrule Decision': 'Ferrule තීරණය සඳහා බලා සිටින පාරිභෝගිකයන්',
+        'Approve for OIC': 'OIC සඳහා අනුමත කරන්න',
+        'Hold - Payment Plan': 'රඳවන්න - ගෙවීම් සැලැස්ම',
+        'Hold - Complaint': 'රඳවන්න - පැමිණිල්ල',
+        'Hold - Special Reason': 'රඳවන්න - විශේෂ හේතුව',
+        'Mark as Reconnected': 'නැවත සම්බන්ධ කළ ලෙස සලකුණු කරන්න',
+        'Select Action': 'ක්‍රියාව තෝරන්න',
+        'Note': 'සටහන',
+        'Set Note': 'සටහන ඇතුළත් කරන්න',
+        'Approved for OIC': 'OIC සඳහා අනුමත කරන ලදී',
+        'On Hold': 'රඳවා ඇත',
+
+        # ── Second Reminders Page ──
+        'Second Reminder Letters': 'දෙවන සිහිකැඳවීම් ලිපි',
+        'Generate Second Reminders': 'දෙවන සිහිකැඳවීම් ජනනය කරන්න',
+        'Print Second Reminders': 'සියලු දෙවන සිහිකැඳවීම් මුද්‍රණය කරන්න',
+
+        # ── Legal Proceed Page ──
+        'Legal Proceed': 'නීතිමය කටයුතු',
+        'Customers for Legal Action': 'නීතිමය පියවර සඳහා පාරිභෝගිකයන්',
+        'Generate Legal Report': 'නීති අංශයට වාර්තාව ජනනය කරන්න',
+        'Legal eligibility criteria': 'නීතිමය කටයුතු සඳහා සුදුසුකම්',
+        'First reminder delivered': 'පළමු සිහිකැඳවීම ලබා දී ඇත',
+        'Second reminder sent': 'දෙවන සිහිකැඳවීම යවන ලදී',
+        'Mail not returned': 'තැපෑල නැවත හරවා නොඑවන ලද',
+        'Still not paid': 'තවමත් ගෙවා නොමැත',
+
+        # ── Import Page ──
+        'Import Disconnected Customer Data': 'විසන්ධි පාරිභෝගික දත්ත ආයාත කරන්න',
+        'Upload a CSV or Excel file': 'ගොනුවක් උඩුගත කරන්න',
+        'Select file': 'ගොනුව තෝරන්න (.xlsx හෝ .csv)',
+        'Upload and Import': 'උඩුගත කර ආයාත කරන්න',
+        'Import from Storage Directly': 'ගබඩාවෙන් සෘජුව ආයාත කරන්න',
+        'Import from Storage Button': 'ගබඩාවෙන් ආයාත කරන්න',
+        'Quick Import': 'ඉක්මන් ආයාතය:',
+        'Click here': 'මෙතැන ක්ලික් කරන්න',
+
+        # ── Language ──
+        'Language': 'භාෂාව',
+        'Sinhala': 'සිංහල',
+        'English': 'English',
+    }
+}
+
+
+def get_translations(lang):
+    """Merge English keys with translations for the given language."""
+    base = dict(TRANSLATIONS['en'])
+    if lang in TRANSLATIONS:
+        base.update(TRANSLATIONS[lang])
+    return base

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ _('NWSDB - Matara Regional Office') }}{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+    <style>
+        body { font-family: 'Iskoola Pota', 'Noto Sans Sinhala', 'Segoe UI', sans-serif; background-color: #f5f7fa; }
+        .sidebar { background: linear-gradient(180deg, #1a3a5c 0%, #0d2137 100%); min-height: 100vh; padding-top: 1rem; }
+        .sidebar .nav-link { color: rgba(255,255,255,0.8); padding: 0.65rem 1rem; border-radius: 0.5rem; margin: 0.15rem 0.5rem; transition: all 0.2s; font-size: 0.9rem; }
+        .sidebar .nav-link:hover { color: #fff; background: rgba(255,255,255,0.1); }
+        .sidebar .nav-link.active { color: #fff; background: rgba(255,255,255,0.2); }
+        .sidebar .nav-link i { margin-right: 0.4rem; width: 1.1rem; }
+        .sidebar .brand { color: #fff; padding: 1rem; font-size: 1rem; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 0.5rem; }
+        .sidebar .brand small { display: block; font-size: 0.7rem; font-weight: normal; opacity: 0.7; }
+        .sidebar .section-label { color: rgba(255,255,255,0.4); font-size: 0.7rem; text-transform: uppercase; padding: 0.8rem 1rem 0.2rem; letter-spacing: 1px; }
+        .main-content { padding: 2rem; }
+        .stat-card { background: #fff; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: all 0.2s; border: 1px solid #eef0f3; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+        .stat-card .icon { font-size: 2rem; margin-bottom: 0.5rem; }
+        .stat-card .number { font-size: 1.8rem; font-weight: bold; color: #1a3a5c; }
+        .stat-card .label { font-size: 0.85rem; color: #6b7a8a; }
+        .table-container { background: #fff; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #eef0f3; }
+        .btn-nwsdb { background-color: #1a3a5c; color: #fff; }
+        .btn-nwsdb:hover { background-color: #0d2137; color: #fff; }
+        .badge-status { padding: 0.35rem 0.65rem; font-size: 0.8rem; }
+        .page-title { font-size: 1.4rem; font-weight: 600; color: #1a3a5c; margin-bottom: 1.5rem; }
+        .flash-messages { position: fixed; top: 1rem; right: 1rem; z-index: 9999; max-width: 400px; }
+        .lang-switch { color: rgba(255,255,255,0.6); padding: 0.5rem 1rem; font-size: 0.85rem; }
+        .lang-switch a { color: rgba(255,255,255,0.6); text-decoration: none; padding: 0.2rem 0.4rem; border-radius: 0.3rem; }
+        .lang-switch a:hover, .lang-switch a.active { color: #fff; background: rgba(255,255,255,0.15); }
+        .badge-stage { font-size: 0.75rem; }
+        @media print { .sidebar, .no-print { display: none; } .main-content { margin-left: 0; padding: 0; } }
+    </style>
+</head>
+<body>
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-2 sidebar p-0 d-none d-md-block">
+                <div class="brand">
+                    <i class="bi bi-droplet"></i> NWSDB
+                    <small>{{ _('Matara Regional Office') }}</small>
+                </div>
+                <nav class="nav flex-column">
+                    <div class="section-label">{{ _('Workflow') }}</div>
+                    <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">
+                        <i class="bi bi-speedometer2"></i> {{ _('Dashboard') }}
+                    </a>
+                    <a class="nav-link {% if request.endpoint in ['dcs_customers', 'dcs_customer_detail'] %}active{% endif %}" href="{{ url_for('dcs_customers') }}">
+                        <i class="bi bi-people"></i> {{ _('DCs Customers') }}
+                    </a>
+                    <a class="nav-link {% if request.endpoint == 'reconnected' %}active{% endif %}" href="{{ url_for('reconnected') }}">
+                        <i class="bi bi-arrow-repeat"></i> {{ _('Reconnected') }}
+                    </a>
+                    <a class="nav-link {% if request.endpoint in ['first_reminders'] %}active{% endif %}" href="{{ url_for('first_reminders') }}">
+                        <i class="bi bi-envelope"></i> {{ _('First Reminders') }}
+                    </a>
+                    <a class="nav-link {% if request.endpoint == 'ferrule_processing' %}active{% endif %}" href="{{ url_for('ferrule_processing') }}">
+                        <i class="bi bi-tools"></i> {{ _('Ferrule Processing') }}
+                    </a>
+                    <a class="nav-link {% if request.endpoint in ['oic_list'] %}active{% endif %}" href="{{ url_for('oic_list') }}">
+                        <i class="bi bi-water"></i> {{ _('OIC Orders') }}
+                    </a>
+                    <a class="nav-link {% if request.endpoint in ['second_reminders'] %}active{% endif %}" href="{{ url_for('second_reminders') }}">
+                        <i class="bi bi-envelope-open"></i> {{ _('Second Reminders') }}
+                    </a>
+                    <a class="nav-link {% if request.endpoint == 'legal_proceed' %}active{% endif %}" href="{{ url_for('legal_proceed') }}">
+                        <i class="bi bi-gavel"></i> {{ _('Legal Proceed') }}
+                    </a>
+                    <hr style="border-color: rgba(255,255,255,0.1); margin: 0.5rem 1rem;">
+                    <div class="section-label">{{ _('System') }}</div>
+                    <a class="nav-link" href="{{ url_for('import_customers') }}">
+                        <i class="bi bi-upload"></i> {{ _('Import Data') }}
+                    </a>
+                </nav>
+                <div class="lang-switch mt-auto position-absolute bottom-0 start-0 end-0 p-3">
+                    <i class="bi bi-globe2"></i>
+                    <a href="{{ url_for('set_lang', code='si') }}" class="{% if current_lang == 'si' %}active{% endif %}">{{ _('Sinhala') }}</a>
+                    |
+                    <a href="{{ url_for('set_lang', code='en') }}" class="{% if current_lang == 'en' %}active{% endif %}">{{ _('English') }}</a>
+                </div>
+            </div>
+
+            <div class="col-md-10 main-content">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        setTimeout(function() {
+            document.querySelectorAll('.alert').forEach(function(a) {
+                a.classList.remove('show');
+                setTimeout(function() { a.remove(); }, 300);
+            });
+        }, 5000);
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

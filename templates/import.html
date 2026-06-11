@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}{{ _('Import Data') }} - NWSDB{% endblock %}
+{% block content %}
+<div class="page-title">
+    <i class="bi bi-upload"></i> {{ _('Import Disconnected Customer Data') }}
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="table-container">
+            <h5 class="mb-3"><i class="bi bi-upload"></i> {{ _('Upload a CSV or Excel file') }}</h5>
+            <form method="POST" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label class="form-label">{{ _('Select file') }}</label>
+                    <input type="file" name="file" class="form-control" accept=".xlsx,.csv" required>
+                </div>
+                <button type="submit" class="btn btn-nwsdb">
+                    <i class="bi bi-cloud-upload"></i> {{ _('Upload and Import') }}
+                </button>
+            </form>
+
+            <hr class="my-4">
+            <h6><i class="bi bi-hdd-stack"></i> {{ _('Import from Storage Directly') }}</h6>
+            <p class="text-muted small">{{ _('Import from storage description') }}</p>
+            <a href="{{ url_for('import_from_storage') }}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-right-circle"></i> {{ _('Import from Storage Button') }}
+            </a>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="table-container">
+            <h5 class="mb-3"><i class="bi bi-info-circle"></i> {{ _('Expected File Format') }}</h5>
+            <p class="text-muted small">{{ _('Format description') }}</p>
+
+            <table class="table table-sm table-bordered small">
+                <thead class="table-light">
+                    <tr><th>{{ _('Column') }}</th><th>{{ _('Description') }}</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Serial No.</td><td>{{ _('Serial No') }}</td></tr>
+                    <tr><td>Account No</td><td>{{ _('Account No') }} (e.g. 31/60/001/044/14)</td></tr>
+                    <tr><td>Category</td><td>{{ _('Category') }} (e.g. 10 Domestic)</td></tr>
+                    <tr><td>Name / Address</td><td>{{ _('Name / Address') }}</td></tr>
+                    <tr><td>Total Amount</td><td>{{ _('Outstanding Amount') }}</td></tr>
+                    <tr><td>Last Reading / Date / Disconn. Date</td><td>Reading \n Date \n {{ _('Disconnection Date') }}</td></tr>
+                </tbody>
+            </table>
+
+            <p class="small text-muted mt-2">{{ _('Header note') }}</p>
+
+            <div class="alert alert-success mt-2">
+                <i class="bi bi-check-circle"></i>
+                <strong>{{ _('Quick Import') }}</strong>
+                <a href="{{ url_for('import_from_storage') }}" class="alert-link">{{ _('Click here') }}</a>
+                {{ _('to import 2025/10 data') }}.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

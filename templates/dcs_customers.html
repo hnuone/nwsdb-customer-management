@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}{{ _('DCs Customers') }} - NWSDB {{ _('Matara Regional Office') }}{% endblock %}
+{% block content %}
+<div class="page-title">
+    <i class="bi bi-people"></i> {{ _('DCs Customer Management') }}
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-8">
+        <form method="GET" class="row g-2">
+            <div class="col-md-4">
+                <input type="text" name="search" class="form-control" placeholder="{{ _('Account No / Name / Address') }}..." value="{{ request.args.get('search', '') }}">
+            </div>
+            <div class="col-md-2">
+                <select name="scheme" class="form-select">
+                    <option value="">{{ _('All Schemes') }}</option>
+                    {% for s in schemes %}
+                    <option value="{{ s }}" {% if request.args.get('scheme') == s %}selected{% endif %}>{{ s }} - {{ scheme_name(s) }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="stage" class="form-select">
+                    <option value="">{{ _('All Stages') }}</option>
+                    {% for key, label_key in stage_labels.items() %}
+                    <option value="{{ key }}" {% if request.args.get('stage') == key %}selected{% endif %}>{{ _(label_key) }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-nwsdb w-100"><i class="bi bi-search"></i> {{ _('Search') }}</button>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('import_customers') }}" class="btn btn-nwsdb"><i class="bi bi-upload"></i> {{ _('Import') }}</a>
+        <a href="{{ url_for('export_customers') }}" class="btn btn-success"><i class="bi bi-download"></i> {{ _('Export') }}</a>
+    </div>
+</div>
+
+<div class="table-container">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>{{ _('Account No') }}</th>
+                    <th>{{ _('Customer Name') }}</th>
+                    <th>{{ _('Scheme') }}</th>
+                    <th>{{ _('Category') }}</th>
+                    <th>{{ _('Outstanding Amount') }}</th>
+                    <th>{{ _('Stage') }}</th>
+                    <th>{{ _('Action') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in customers %}
+                <tr>
+                    <td><code>{{ c.account_no }}</code></td>
+                    <td>{{ c.name }}</td>
+                    <td><span class="badge bg-secondary">{{ c.scheme }} - {{ scheme_name(c.scheme) if c.scheme else '-' }}</span></td>
+                    <td>{{ c.category or '-' }}</td>
+                    <td>Rs. {{ '%.2f'|format(c.disconnections[0].amount_due) if c.disconnections else '-' }}</td>
+                    <td>
+                        <span class="badge {{ stage_badge(c.stage) }} badge-stage">
+                            {{ _(stage_labels.get(c.stage, c.stage)) }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('dcs_customer_detail', id=c.id) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">{{ _('No records found') }}.
+                        <a href="{{ url_for('import_from_storage') }}">{{ _('Import from Storage') }}</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="text-muted small">{{ _('Total Customers') }}: {{ customers|length }}</div>
+</div>
+{% endblock %}

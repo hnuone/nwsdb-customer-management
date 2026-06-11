@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+*.whl
+
+# Virtual environment
+venv/
+.env/
+env/
+
+# Database
+instance/*.db
+instance/*.sqlite
+
+# Generated output
+letters_output/
+reports_output/
+
+# Secrets / config
+*.secret
+*.key
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

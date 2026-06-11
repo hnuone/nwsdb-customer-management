@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}{{ _('Legal Proceed') }} - NWSDB{% endblock %}
+{% block content %}
+<div class="page-title">
+    <i class="bi bi-gavel"></i> {{ _('Legal Proceed') }}
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-5">
+        <div class="alert alert-info mb-0">
+            <i class="bi bi-info-circle"></i>
+            {{ _('Customers for Legal Action') }}:
+            <ul class="mb-0 mt-1">
+                <li>{{ _('First reminder delivered') }}</li>
+                <li>{{ _('Second reminder sent') }}</li>
+                <li>{{ _('Mail not returned') }}</li>
+                <li>{{ _('Still not paid') }}</li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <form method="GET" class="row g-2">
+            <div class="col-md-7">
+                <input type="text" name="search" class="form-control" placeholder="{{ _('Account No / Name / Address') }}..." value="{{ request.args.get('search', '') }}">
+            </div>
+            <div class="col-md-5">
+                <select name="scheme" class="form-select">
+                    <option value="">{{ _('All Schemes') }}</option>
+                    {% for s in schemes %}
+                    <option value="{{ s }}" {% if request.args.get('scheme') == s %}selected{% endif %}>{{ s }} - {{ scheme_name(s) }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-nwsdb"><i class="bi bi-search"></i> {{ _('Search') }}</button>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('generate_legal_proceed_report') }}" class="btn btn-danger btn-lg">
+            <i class="bi bi-gavel"></i> {{ _('Generate Legal Report') }}
+        </a>
+    </div>
+</div>
+
+<div class="table-container">
+    <h5 class="mb-3">{{ _('Customers for Legal Action') }} ({{ customers|length }})</h5>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>{{ _('Account No') }}</th>
+                    <th>{{ _('Customer Name') }}</th>
+                    <th>{{ _('Scheme') }}</th>
+                    <th>{{ _('Category') }}</th>
+                    <th>{{ _('Outstanding Amount') }}</th>
+                    <th>{{ _('Address') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in customers %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td><code>{{ c.account_no }}</code></td>
+                    <td>{{ c.name }}</td>
+                    <td><span class="badge bg-secondary">{{ c.scheme }} - {{ scheme_name(c.scheme) if c.scheme else '-' }}</span></td>
+                    <td>{{ c.category or '-' }}</td>
+                    <td>Rs. {{ fmt_amount(c.disconnections[0].amount_due) if c.disconnections else '0.00' }}</td>
+                    <td>{{ c.address[:60] }}{% if c.address|length > 60 %}...{% endif %}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">{{ _('No records found') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

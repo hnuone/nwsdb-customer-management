@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% block title %}{{ _('First Reminders') }} - NWSDB{% endblock %}
+{% block content %}
+<div class="page-title">
+    <i class="bi bi-envelope"></i> {{ _('First Reminder Letters') }}
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-2">
+        <div class="stat-card text-center">
+            <div class="number">{{ stats.total }}</div>
+            <div class="label">{{ _('Total Letters') }}</div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="stat-card text-center">
+            <div class="number text-secondary">{{ stats.pending }}</div>
+            <div class="label">{{ _('Awaiting Printing') }}</div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="stat-card text-center">
+            <div class="number text-primary">{{ stats.sent }}</div>
+            <div class="label">{{ _('Sent') }}</div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="stat-card text-center">
+            <div class="number text-success">{{ stats.delivered }}</div>
+            <div class="label">{{ _('Delivered') }}</div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="stat-card text-center">
+            <div class="number text-danger">{{ stats.returned }}</div>
+            <div class="label">{{ _('Returned') }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-8">
+        <form method="GET" class="row g-2">
+            <div class="col-md-4">
+                <input type="text" name="search" class="form-control" placeholder="{{ _('Account No / Name / Address') }}..." value="{{ request.args.get('search', '') }}">
+            </div>
+            <div class="col-md-3">
+                <select name="scheme" class="form-select">
+                    <option value="">{{ _('All Schemes') }}</option>
+                    {% for s in schemes %}
+                    <option value="{{ s }}" {% if request.args.get('scheme') == s %}selected{% endif %}>{{ s }} - {{ scheme_name(s) }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-auto">
+                <select name="status" class="form-select">
+                    <option value="">{{ _('All Status') }}</option>
+                    <option value="pending" {% if request.args.get('status') == 'pending' %}selected{% endif %}>{{ _('Pending') }}</option>
+                    <option value="sent" {% if request.args.get('status') == 'sent' %}selected{% endif %}>{{ _('Sent') }}</option>
+                    <option value="returned" {% if request.args.get('status') == 'returned' %}selected{% endif %}>{{ _('Returned') }}</option>
+                    <option value="delivered" {% if request.args.get('status') == 'delivered' %}selected{% endif %}>{{ _('Delivered') }}</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-nwsdb"><i class="bi bi-search"></i> {{ _('Search') }}</button>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('generate_first_reminders') }}" class="btn btn-nwsdb">
+            <i class="bi bi-plus-circle"></i> {{ _('Generate First Reminders') }}
+        </a>
+        <a href="{{ url_for('print_pending_first_reminders') }}" class="btn btn-success">
+            <i class="bi bi-printer"></i> {{ _('Print First Reminders') }}
+        </a>
+    </div>
+</div>
+
+<div class="table-container">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>{{ _('Account No') }}</th>
+                    <th>{{ _('Customer Name') }}</th>
+                    <th>{{ _('Category') }}</th>
+                    <th>{{ _('Date') }}</th>
+                    <th>{{ _('Sent') }}</th>
+                    <th>{{ _('Status') }}</th>
+                    <th>{{ _('Returned') }}</th>
+                    <th>{{ _('Action') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for letter in letters %}
+                <tr>
+                    <td><code>{{ letter.customer.account_no }}</code></td>
+                    <td>{{ letter.customer.name }}</td>
+                    <td>{{ letter.customer.category or '-' }}</td>
+                    <td>{{ fmt_date(letter.issue_date) }}</td>
+                    <td>{{ fmt_date(letter.sent_date) if letter.sent_date else '-' }}</td>
+                    <td>
+                        {% if letter.status == 'pending' %}
+                        <span class="badge bg-secondary">{{ t.get('badge_pending', 'Pending') }}</span>
+                        {% elif letter.status == 'sent' %}
+                        <span class="badge bg-primary">{{ t.get('badge_sent', 'Sent') }}</span>
+                        {% elif letter.status == 'returned' %}
+                        <span class="badge bg-danger">{{ t.get('badge_returned', 'Returned') }}</span>
+                        {% elif letter.status == 'delivered' %}
+                        <span class="badge bg-success">{{ t.get('badge_delivered', 'Delivered') }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if letter.returned_date %}
+                            {{ fmt_date(letter.returned_date) }}<br>
+                            <small class="text-muted">{{ letter.return_reason or '' }}</small>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ url_for('download_first_reminder_pdf', letter_id=letter.id) }}" class="btn btn-outline-primary" title="{{ _('Download PDF') }}">
+                                <i class="bi bi-file-pdf"></i>
+                            </a>
+                            {% if letter.status == 'pending' %}
+                            <form method="POST" action="{{ url_for('mark_first_reminder_sent', letter_id=letter.id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-outline-success" title="Mark Sent">
+                                    <i class="bi bi-send"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                            {% if letter.status in ['sent', 'delivered'] %}
+                            <button type="button" class="btn btn-outline-danger" title="Mark Returned"
+                                onclick="showReturnForm({{ letter.id }})">
+                                <i class="bi bi-arrow-return-left"></i>
+                            </button>
+                            {% endif %}
+                            {% if letter.status == 'sent' %}
+                            <form method="POST" action="{{ url_for('mark_first_reminder_delivered', letter_id=letter.id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-outline-success" title="Mark Delivered">
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-4">{{ _('No records found') }}.
+                        <a href="{{ url_for('generate_first_reminders') }}">{{ _('Generate First Reminders') }}</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="returnModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" id="returnForm">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ _('Letter returned') }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">{{ _('Return Reason') }}</label>
+                        <select name="return_reason" class="form-select" required>
+                            <option value="">{{ _('Select') }}</option>
+                            <option value="Address changed">Address changed</option>
+                            <option value="No such address">No such address</option>
+                            <option value="Rejected">Rejected</option>
+                            <option value="Unknown address">Unknown address</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancel') }}</button>
+                    <button type="submit" class="btn btn-danger">{{ _('Confirm') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function showReturnForm(letterId) {
+    document.getElementById('returnForm').action = '/first_reminders/return/' + letterId;
+    new bootstrap.Modal(document.getElementById('returnModal')).show();
+}
+</script>
+{% endblock %}

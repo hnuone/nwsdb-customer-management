@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% block title %}{{ customer.name }} - NWSDB{% endblock %}
+{% block content %}
+<div class="page-title">
+    <i class="bi bi-person"></i> {{ customer.name }}
+    <small class="text-muted" style="font-size: 0.9rem;">{{ _('Account No') }}: {{ customer.account_no }}</small>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="table-container">
+            <h5><i class="bi bi-info-circle"></i> {{ _('DCs Customer Info') }}</h5>
+            <table class="table table-sm">
+                <tr><th>{{ _('Account No') }}</th><td><code>{{ customer.account_no }}</code></td></tr>
+                <tr><th>{{ _('Customer Name') }}</th><td>{{ customer.name }}</td></tr>
+                <tr><th>{{ _('Address') }}</th><td>{{ customer.address|nl2br }}</td></tr>
+                <tr><th>{{ _('Category') }}</th><td>{{ customer.category or '-' }}</td></tr>
+                <tr><th>{{ _('Scheme') }}</th><td>{{ scheme_name(customer.scheme) if customer.scheme else '-' }}</td></tr>
+                <tr><th>{{ _('Zone') }}</th><td>{{ customer.zone or '-' }}</td></tr>
+                <tr><th>{{ _('Stage') }}</th><td>
+                    <span class="badge {{ stage_badge(customer.stage) }}">
+                        {{ _(stage_labels.get(customer.stage, customer.stage)) }}
+                    </span>
+                </td></tr>
+                <tr><th>{{ _('Stage Note') }}</th><td><small class="text-muted">{{ customer.stage_note or '-' }}</small></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="table-container mb-3">
+            <h5><i class="bi bi-envelope"></i> {{ _('Reminder Letters') }}</h5>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>{{ _('Type') }}</th>
+                            <th>{{ _('Date') }}</th>
+                            <th>{{ _('Sent') }}</th>
+                            <th>{{ _('Status') }}</th>
+                            <th>{{ _('Returned') }}</th>
+                            <th>{{ _('Reason') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for letter in customer.reminder_letters %}
+                        <tr>
+                            <td>{% if letter.letter_type == 1 %}{{ _('First Reminders') }}{% else %}{{ _('Second Reminders') }}{% endif %}</td>
+                            <td>{{ fmt_date(letter.issue_date) }}</td>
+                            <td>{{ fmt_date(letter.sent_date) if letter.sent_date else '-' }}</td>
+                            <td>
+                                {% if letter.status == 'pending' %}
+                                <span class="badge bg-secondary">{{ t.get('badge_pending', 'Pending') }}</span>
+                                {% elif letter.status == 'sent' %}
+                                <span class="badge bg-primary">{{ t.get('badge_sent', 'Sent') }}</span>
+                                {% elif letter.status == 'returned' %}
+                                <span class="badge bg-danger">{{ t.get('badge_returned', 'Returned') }}</span>
+                                {% elif letter.status == 'delivered' %}
+                                <span class="badge bg-success">{{ t.get('badge_delivered', 'Delivered') }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ fmt_date(letter.returned_date) if letter.returned_date else '-' }}</td>
+                            <td>{{ letter.return_reason or '-' }}</td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="6" class="text-center text-muted">{{ _('No records found') }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="table-container mb-3">
+            <h5><i class="bi bi-water"></i> {{ _('OIC Orders') }}</h5>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>{{ _('Order Date') }}</th>
+                            <th>{{ _('Outstanding Amount') }}</th>
+                            <th>{{ _('Reconnection Charge') }}</th>
+                            <th>{{ _('Total Amount Due') }}</th>
+                            <th>{{ _('Status') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for oic in customer.oic_orders %}
+                        <tr>
+                            <td>{{ fmt_date(oic.order_date) }}</td>
+                            <td>Rs. {{ '%.2f'|format(oic.amount_outstanding) }}</td>
+                            <td>Rs. {{ '%.2f'|format(oic.reconnection_charge) }}</td>
+                            <td><strong>Rs. {{ '%.2f'|format(oic.total_amount) }}</strong></td>
+                            <td>
+                                {% if oic.status == 'pending' %}
+                                <span class="badge bg-warning text-dark">{{ t.get('badge_awaiting', 'Awaiting') }}</span>
+                                {% else %}
+                                <span class="badge bg-success">{{ t.get('badge_completed', 'Completed') }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="5" class="text-center text-muted">{{ _('No records found') }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <h5><i class="bi bi-clock-history"></i> {{ _('Disconnection History') }}</h5>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>{{ _('Disconnection Date') }}</th>
+                            <th>{{ _('Outstanding Amount') }}</th>
+                            <th>{{ _('Last Reading') }}</th>
+                            <th>{{ _('Last Read Date') }}</th>
+                            <th>{{ _('Reason') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for d in customer.disconnections %}
+                        <tr>
+                            <td>{{ fmt_date(d.disconnection_date) }}</td>
+                            <td>Rs. {{ '%.2f'|format(d.amount_due) }}</td>
+                            <td>{{ d.last_reading or '-' }}</td>
+                            <td>{{ fmt_date(d.last_read_date) if d.last_read_date else '-' }}</td>
+                            <td>{{ d.reason or '-' }}</td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="5" class="text-center text-muted">{{ _('No records found') }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

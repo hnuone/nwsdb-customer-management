@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% block title %}{{ _('Ferrule Processing') }} - NWSDB{% endblock %}
+{% block content %}
+<div class="page-title">
+    <i class="bi bi-tools"></i> {{ _('Ferrule Processing') }}
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-5">
+        <div class="alert alert-info mb-0">
+            <i class="bi bi-info-circle"></i>
+            {{ _('Customers Awaiting Ferrule Decision') }}:
+            <ul class="mb-0 mt-1 small">
+                <li>{{ _('First reminder delivered/sent') }}</li>
+                <li>{{ _('Not reconnected') }}</li>
+                <li>{{ _('Not yet approved for OIC') }}</li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <form method="GET" class="row g-2">
+            <div class="col-md-5">
+                <input type="text" name="search" class="form-control" placeholder="{{ _('Account No / Name / Address') }}..." value="{{ request.args.get('search', '') }}">
+            </div>
+            <div class="col-md-4">
+                <select name="scheme" class="form-select">
+                    <option value="">{{ _('All Schemes') }}</option>
+                    {% for s in schemes %}
+                    <option value="{{ s }}" {% if request.args.get('scheme') == s %}selected{% endif %}>{{ s }} - {{ scheme_name(s) }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-nwsdb"><i class="bi bi-search"></i> {{ _('Search') }}</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="table-container">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>{{ _('Account No') }}</th>
+                    <th>{{ _('Customer Name') }}</th>
+                    <th>{{ _('Scheme') }}</th>
+                    <th>{{ _('Outstanding Amount') }}</th>
+                    <th>{{ _('Stage') }}</th>
+                    <th>{{ _('Stage Note') }}</th>
+                    <th>{{ _('Action') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in customers %}
+                <tr>
+                    <td><code>{{ c.account_no }}</code></td>
+                    <td>{{ c.name }}</td>
+                    <td><span class="badge bg-secondary">{{ c.scheme }} - {{ scheme_name(c.scheme) if c.scheme else '-' }}</span></td>
+                    <td>Rs. {{ fmt_amount(c.disconnections[0].amount_due) if c.disconnections else '0.00' }}</td>
+                    <td>
+                        <span class="badge {{ stage_badge(c.stage) }} badge-stage">
+                            {{ _(stage_labels.get(c.stage, c.stage)) }}
+                        </span>
+                    </td>
+                    <td><small class="text-muted">{{ c.stage_note or '' }}</small></td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                {{ _('Select Action') }}
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <form method="POST" style="display:inline;">
+                                        <input type="hidden" name="action" value="approve_oic">
+                                        <input type="hidden" name="customer_id" value="{{ c.id }}">
+                                        <input type="hidden" name="note" value="">
+                                        <button type="submit" class="dropdown-item text-primary">
+                                            <i class="bi bi-check-circle"></i> {{ _('Approve for OIC') }}
+                                        </button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <form method="POST" style="display:inline;">
+                                        <input type="hidden" name="action" value="hold_payment">
+                                        <input type="hidden" name="customer_id" value="{{ c.id }}">
+                                        <input type="hidden" name="note" value="">
+                                        <button type="submit" class="dropdown-item text-warning">
+                                            <i class="bi bi-pause-circle"></i> {{ _('Hold - Payment Plan') }}
+                                        </button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <form method="POST" style="display:inline;">
+                                        <input type="hidden" name="action" value="hold_complaint">
+                                        <input type="hidden" name="customer_id" value="{{ c.id }}">
+                                        <input type="hidden" name="note" value="">
+                                        <button type="submit" class="dropdown-item text-warning">
+                                            <i class="bi bi-pause-circle"></i> {{ _('Hold - Complaint') }}
+                                        </button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <form method="POST" style="display:inline;">
+                                        <input type="hidden" name="action" value="hold_special">
+                                        <input type="hidden" name="customer_id" value="{{ c.id }}">
+                                        <input type="hidden" name="note" value="">
+                                        <button type="submit" class="dropdown-item text-warning">
+                                            <i class="bi bi-pause-circle"></i> {{ _('Hold - Special Reason') }}
+                                        </button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <form method="POST" style="display:inline;">
+                                        <input type="hidden" name="action" value="mark_reconnected">
+                                        <input type="hidden" name="customer_id" value="{{ c.id }}">
+                                        <input type="hidden" name="note" value="">
+                                        <button type="submit" class="dropdown-item text-success">
+                                            <i class="bi bi-arrow-repeat"></i> {{ _('Mark as Reconnected') }}
+                                        </button>
+                                    </form>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <button type="button" class="dropdown-item" onclick="showNoteForm({{ c.id }})">
+                                        <i class="bi bi-pencil"></i> {{ _('Set Note') }}
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">{{ _('No records found') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="noteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ _('Set Note') }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="customer_id" id="noteCustomerId">
+                    <input type="hidden" name="action" value="hold_special">
+                    <div class="mb-3">
+                        <label class="form-label">{{ _('Note') }}</label>
+                        <textarea name="note" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancel') }}</button>
+                    <button type="submit" class="btn btn-primary">{{ _('Save') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function showNoteForm(customerId) {
+    document.getElementById('noteCustomerId').value = customerId;
+    new bootstrap.Modal(document.getElementById('noteModal')).show();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% block title %}{{ _('Reconnected') }} - NWSDB{% endblock %}
+{% block content %}
+<div class="page-title">
+    <i class="bi bi-arrow-repeat"></i> {{ _('Reconnected Customers') }}
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="table-container">
+            <h5 class="mb-3"><i class="bi bi-upload"></i> {{ _('Upload Reconnected List') }}</h5>
+            <p class="text-muted small">{{ _('Upload CSV with Account No column') }}.</p>
+            <form method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="action" value="upload_csv">
+                <div class="row g-2">
+                    <div class="col-md-8">
+                        <input type="file" name="file" class="form-control" accept=".csv" required>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-nwsdb w-100"><i class="bi bi-cloud-upload"></i> {{ _('Upload') }}</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="table-container">
+            <h5 class="mb-3"><i class="bi bi-check-circle text-success"></i> {{ _('Reconnected') }} ({{ reconnected_list|length }})</h5>
+            {% if reconnected_list %}
+            <div class="table-responsive" style="max-height: 300px;">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>{{ _('Account No') }}</th>
+                            <th>{{ _('Customer Name') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in reconnected_list %}
+                        <tr>
+                            <td><code>{{ c.account_no }}</code></td>
+                            <td>{{ c.name }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted my-3 text-center">{{ _('No records found') }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="table-container">
+    <h5 class="mb-3"><i class="bi bi-people"></i> {{ _('Mark Selected as Reconnected') }}</h5>
+
+    <form method="GET" class="row g-2 mb-3">
+        <div class="col-md-4">
+            <input type="text" name="search" class="form-control" placeholder="{{ _('Search') }}..." value="{{ request.args.get('search', '') }}">
+        </div>
+        <div class="col-md-2">
+            <select name="scheme" class="form-select">
+                <option value="">{{ _('All Schemes') }}</option>
+                {% for s in schemes %}
+                <option value="{{ s }}" {% if request.args.get('scheme') == s %}selected{% endif %}>{{ s }} - {{ scheme_name(s) }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-nwsdb"><i class="bi bi-search"></i> {{ _('Search') }}</button>
+        </div>
+    </form>
+
+    <form method="POST" id="reconnectForm">
+        <input type="hidden" name="action" value="mark_selected">
+        <div class="mb-2">
+            <button type="submit" class="btn btn-success" onclick="return confirm('{{ _('Confirm') }}?')">
+                <i class="bi bi-check-lg"></i> {{ _('Mark Selected as Reconnected') }}
+            </button>
+        </div>
+        <div class="table-responsive" style="max-height: 500px;">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th width="40"><input type="checkbox" id="selectAll" onclick="toggleAll(this)"></th>
+                        <th>{{ _('Account No') }}</th>
+                        <th>{{ _('Customer Name') }}</th>
+                        <th>{{ _('Scheme') }}</th>
+                        <th>{{ _('Outstanding Amount') }}</th>
+                        <th>{{ _('Stage') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in active %}
+                    <tr>
+                        <td><input type="checkbox" name="customer_ids" value="{{ c.id }}"></td>
+                        <td><code>{{ c.account_no }}</code></td>
+                        <td>{{ c.name }}</td>
+                        <td><span class="badge bg-secondary">{{ c.scheme }} - {{ scheme_name(c.scheme) if c.scheme else '-' }}</span></td>
+                        <td>Rs. {{ fmt_amount(c.disconnections[0].amount_due) if c.disconnections else '0.00' }}</td>
+                        <td>
+                            <span class="badge {{ stage_badge(c.stage) }} badge-stage">
+                                {{ _(stage_labels.get(c.stage, c.stage)) }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">{{ _('No records found') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </form>
+</div>
+
+<script>
+function toggleAll(source) {
+    document.querySelectorAll('input[name="customer_ids"]').forEach(function(cb) {
+        cb.checked = source.checked;
+    });
+}
+</script>
+{% endblock %}
