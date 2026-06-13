@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ _('Register') }} - NWSDB</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+    <style>
+        body { font-family: 'Iskoola Pota', 'Noto Sans Sinhala', 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1a3a5c 0%, #0d2137 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .register-card { background: #fff; border-radius: 1.5rem; padding: 3rem; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 450px; width: 100%; }
+        .register-card .brand { text-align: center; margin-bottom: 2rem; }
+        .register-card .brand i { font-size: 3rem; color: #1a3a5c; }
+        .register-card .brand h2 { color: #1a3a5c; font-weight: bold; margin-top: 0.5rem; }
+        .register-card .brand small { color: #6b7a8a; }
+        .btn-nwsdb { background-color: #1a3a5c; color: #fff; width: 100%; padding: 0.75rem; }
+        .btn-nwsdb:hover { background-color: #0d2137; color: #fff; }
+        .lang-bar { position: fixed; top: 1rem; right: 1rem; color: rgba(255,255,255,0.8); }
+        .lang-bar a { color: rgba(255,255,255,0.6); text-decoration: none; padding: 0.2rem 0.5rem; border-radius: 0.3rem; }
+        .lang-bar a:hover, .lang-bar a.active { color: #fff; background: rgba(255,255,255,0.15); }
+        .flash-container { position: fixed; top: 4rem; right: 1rem; z-index: 9999; max-width: 400px; }
+    </style>
+</head>
+<body>
+    <div class="lang-bar">
+        <i class="bi bi-globe2"></i>
+        <a href="{{ url_for('set_lang', code='si') }}" class="{% if current_lang == 'si' %}active{% endif %}">{{ _('Sinhala') }}</a> |
+        <a href="{{ url_for('set_lang', code='en') }}" class="{% if current_lang == 'en' %}active{% endif %}">{{ _('English') }}</a>
+    </div>
+    <div class="flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+    <div class="register-card">
+        <div class="brand">
+            <i class="bi bi-droplet"></i>
+            <h2>NWSDB</h2>
+            <small>{{ _('Matara Regional Office') }}</small>
+            <p class="mt-2">{{ _('Create new account') }}</p>
+        </div>
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">{{ _('Username') }}</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                    <input type="text" name="username" class="form-control" placeholder="{{ _('Username') }}" required>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">{{ _('Password') }}</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                    <input type="password" name="password" class="form-control" placeholder="{{ _('Password') }}" required>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">{{ _('Confirm Password') }}</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                    <input type="password" name="confirm" class="form-control" placeholder="{{ _('Confirm Password') }}" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-nwsdb mt-2">{{ _('Register') }}</button>
+        </form>
+        <div class="text-center mt-3">
+            <small><a href="{{ url_for('login') }}">{{ _('Already have an account? Login') }}</a></small>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        setTimeout(function() { document.querySelectorAll('.alert').forEach(function(a) { a.classList.remove('show'); setTimeout(function() { a.remove(); }, 300); }); }, 5000);
+    </script>
+</body>
+</html>

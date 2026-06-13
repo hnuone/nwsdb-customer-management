@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 
@@ -35,6 +36,22 @@ def extract_scheme(account_no):
 
 def scheme_name(code):
     return SCHEMES.get(code, f'WSS {code}' if code else '')
+
+
+class User(db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False, index=True)
+    password_hash = db.Column(db.String(200), nullable=False)
+    role = db.Column(db.String(20), default='user')       # admin | user
+    is_verified = db.Column(db.Boolean, default=False)     # admin must verify new users
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
 
 class Customer(db.Model):
@@ -107,3 +124,9 @@ class OICOrder(db.Model):
 def init_db(app):
     with app.app_context():
         db.create_all()
+        # Seed default admin if not exists
+        if not User.query.filter_by(username='admin').first():
+            admin = User(username='admin', role='admin', is_verified=True)
+            admin.set_password('admin123')
+            db.session.add(admin)
+            db.session.commit()

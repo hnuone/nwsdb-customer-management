@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}{{ _('Verify Users') }} - NWSDB{% endblock %}
+{% block content %}
+<div class="page-title">
+    <i class="bi bi-person-check"></i> {{ _('User Management') }}
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="table-container">
+            <h5 class="mb-3"><i class="bi bi-hourglass-split text-warning"></i> {{ _('Pending Verification') }} ({{ unverified|length }})</h5>
+            {% if unverified %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>{{ _('Username') }}</th>
+                            <th>{{ _('Date') }}</th>
+                            <th>{{ _('Action') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in unverified %}
+                        <tr>
+                            <td>{{ u.username }}</td>
+                            <td>{{ fmt_date(u.created_at) if u.created_at else '-' }}</td>
+                            <td>
+                                <form method="POST" style="display:inline;">
+                                    <input type="hidden" name="user_id" value="{{ u.id }}">
+                                    <input type="hidden" name="action" value="verify">
+                                    <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-check-lg"></i> {{ _('Verify') }}</button>
+                                </form>
+                                <form method="POST" style="display:inline;" onsubmit="return confirm('Delete {{ u.username }}?')">
+                                    <input type="hidden" name="user_id" value="{{ u.id }}">
+                                    <input type="hidden" name="action" value="delete">
+                                    <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted my-3 text-center">{{ _('No records found') }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="table-container">
+            <h5 class="mb-3"><i class="bi bi-check-circle text-success"></i> {{ _('Verified Users') }} ({{ verified|length }})</h5>
+            {% if verified %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>{{ _('Username') }}</th>
+                            <th>{{ _('Role') }}</th>
+                            <th>{{ _('Date') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in verified %}
+                        <tr>
+                            <td>{{ u.username }}</td>
+                            <td><span class="badge bg-{{ 'danger' if u.role == 'admin' else 'primary' }}">{{ u.role }}</span></td>
+                            <td>{{ fmt_date(u.created_at) if u.created_at else '-' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted my-3 text-center">{{ _('No records found') }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

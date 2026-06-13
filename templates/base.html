@@ -87,12 +87,28 @@
                     <a class="nav-link" href="{{ url_for('import_customers') }}">
                         <i class="bi bi-upload"></i> {{ _('Import Data') }}
                     </a>
+                    {% if current_user and current_user.role == 'admin' %}
+                    <a class="nav-link {% if request.endpoint == 'verify_users' %}active{% endif %}" href="{{ url_for('verify_users') }}">
+                        <i class="bi bi-person-check"></i> {{ _('Verify Users') }}
+                    </a>
+                    {% endif %}
                 </nav>
-                <div class="lang-switch mt-auto position-absolute bottom-0 start-0 end-0 p-3">
-                    <i class="bi bi-globe2"></i>
-                    <a href="{{ url_for('set_lang', code='si') }}" class="{% if current_lang == 'si' %}active{% endif %}">{{ _('Sinhala') }}</a>
-                    |
-                    <a href="{{ url_for('set_lang', code='en') }}" class="{% if current_lang == 'en' %}active{% endif %}">{{ _('English') }}</a>
+                <div class="position-absolute bottom-0 start-0 end-0 p-3">
+                    {% if current_user %}
+                    <div class="text-white small mb-2 px-2">
+                        <i class="bi bi-person-circle"></i> {{ current_user.username }}
+                        <span class="badge bg-{{ 'danger' if current_user.role == 'admin' else 'primary' }} ms-1" style="font-size:0.6rem;">{{ current_user.role }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="lang-switch">
+                        <i class="bi bi-globe2"></i>
+                        <a href="{{ url_for('set_lang', code='si') }}" class="{% if current_lang == 'si' %}active{% endif %}">{{ _('Sinhala') }}</a>
+                        |
+                        <a href="{{ url_for('set_lang', code='en') }}" class="{% if current_lang == 'en' %}active{% endif %}">{{ _('English') }}</a>
+                    </div>
+                    <div class="mt-2 px-2">
+                        <a href="{{ url_for('logout') }}" class="text-white-50 small"><i class="bi bi-box-arrow-right"></i> {{ _('Logout') }}</a>
+                    </div>
                 </div>
             </div>
 

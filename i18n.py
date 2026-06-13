@@ -164,6 +164,23 @@ TRANSLATIONS = {
         'Quick Import': 'ඉක්මන් ආයාතය:',
         'Click here': 'මෙතැන ක්ලික් කරන්න',
 
+        # ── Auth ──
+        'Login': 'පිවිසෙන්න',
+        'Logout': 'ඉවත් වන්න',
+        'Register': 'ලියාපදිංචි වන්න',
+        'Username': 'පරිශීලක නම',
+        'Password': 'මුරපදය',
+        'Confirm Password': 'මුරපදය තහවුරු කරන්න',
+        'Create new account': 'නව ගිණුමක් සාදන්න',
+        'Already have an account? Login': 'දැනටමත් ගිණුමක් තිබේද? පිවිසෙන්න',
+        'User Management': 'පරිශීලක කළමනාකරණය',
+        'Pending Verification': 'තහවුරු කිරීමට බලා සිටී',
+        'Verified Users': 'තහවුරු කළ පරිශීලකයන්',
+        'Verify': 'තහවුරු කරන්න',
+        'Verify Users': 'පරිශීලකයන් තහවුරු කරන්න',
+        'Role': 'භූමිකාව',
+        'Back': 'ආපසු',
+
         # ── Language ──
         'Language': 'භාෂාව',
         'Sinhala': 'සිංහල',

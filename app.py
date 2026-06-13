@@ -3,7 +3,8 @@ import csv
 import io
 import re
 from datetime import date, datetime
-from flask import Flask, render_template, request, redirect, url_for, flash, send_file, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file, jsonify, session
+from functools import wraps
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
 from reportlab.pdfgen import canvas
@@ -11,7 +12,7 @@ from reportlab.lib import colors
 import openpyxl
 from openpyxl.styles import Font, Alignment, Border, Side
 
-from database import db, init_db, Customer, Disconnection, ReminderLetter, OICOrder, extract_scheme, scheme_name
+from database import db, init_db, User, Customer, Disconnection, ReminderLetter, OICOrder, extract_scheme, scheme_name
 from i18n import get_translations
 
 app = Flask(__name__)
@@ -52,6 +53,29 @@ STAGE_ICONS = {
     'legal': 'bi-gavel',
 }
 
+# ─── Auth helpers ───
+def login_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if 'user_id' not in session:
+            flash('කරුණාකර පළමුව පිවිසෙන්න', 'warning')
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated
+
+def admin_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if 'user_id' not in session:
+            flash('කරුණාකර පළමුව පිවිසෙන්න', 'warning')
+            return redirect(url_for('login'))
+        user = User.query.get(session['user_id'])
+        if not user or user.role != 'admin':
+            flash('මෙම ක්‍රියාව සඳහා ප්‍රවේශය අවහිර කර ඇත', 'danger')
+            return redirect(url_for('index'))
+        return f(*args, **kwargs)
+    return decorated
+
 def _(key):
     """Translate a key -- works both in routes and templates."""
     if not request:
@@ -60,13 +84,17 @@ def _(key):
     return get_translations(lang).get(key, key)
 
 @app.context_processor
-def inject_translations():
+def inject_globals():
     lang = request.cookies.get('lang', 'si') if request else 'si'
     def _(key):
         return get_translations(lang).get(key, key)
+    user = None
+    if 'user_id' in session:
+        user = User.query.get(session['user_id'])
     return dict(_=_, current_lang=lang, t=get_translations(lang),
                 stage_labels=STAGE_LABELS, stage_icons=STAGE_ICONS,
-                stage_badge=stage_badge, scheme_name=scheme_name)
+                stage_badge=stage_badge, scheme_name=scheme_name,
+                current_user=user)
 
 @app.route('/lang/<code>')
 def set_lang(code):
@@ -124,9 +152,83 @@ def stage_badge(stage):
     }
     return colors_map.get(stage, 'bg-secondary')
 
+# ─────────────────────── Auth ───────────────────────
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
+        user = User.query.filter_by(username=username).first()
+        if not user or not user.check_password(password):
+            flash('වලංගු නොවන පරිශීලක නම හෝ මුරපදය', 'danger')
+            return render_template('login.html')
+        if not user.is_verified:
+            flash('ඔබගේ ගිණුම තවමත් තහවුරු කර නොමැත. කරුණාකර පරිපාලක හා සම්බන්ධ වන්න.', 'warning')
+            return render_template('login.html')
+        session['user_id'] = user.id
+        session['username'] = user.username
+        session['role'] = user.role
+        flash(f'සාදරයෙන් පිළිගනිමු, {user.username}!', 'success')
+        return redirect(url_for('index'))
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash('ඔබ ඉවත් වී ඇත', 'info')
+    return redirect(url_for('login'))
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
+        confirm = request.form.get('confirm', '')
+        if not username or not password:
+            flash('කරුණාකර පරිශීලක නම සහ මුරපදය ඇතුළත් කරන්න', 'danger')
+            return render_template('register.html')
+        if password != confirm:
+            flash('මුරපද ගැලපෙන්නේ නැත', 'danger')
+            return render_template('register.html')
+        if len(password) < 4:
+            flash('මුරපදය අවම වශයෙන් අක්ෂර 4ක් විය යුතුය', 'danger')
+            return render_template('register.html')
+        if User.query.filter_by(username=username).first():
+            flash('මෙම පරිශීලක නම දැනටමත් පවතී', 'danger')
+            return render_template('register.html')
+        user = User(username=username, role='user', is_verified=False)
+        user.set_password(password)
+        db.session.add(user)
+        db.session.commit()
+        flash('ඔබගේ ගිණුම සාදා ඇත. පරිපාලක එය තහවුරු කරන තෙක් බලා සිටින්න.', 'success')
+        return redirect(url_for('login'))
+    return render_template('register.html')
+
+@app.route('/admin/verify-users', methods=['GET', 'POST'])
+@admin_required
+def verify_users():
+    if request.method == 'POST':
+        user_id = request.form.get('user_id')
+        action = request.form.get('action')
+        u = User.query.get(int(user_id))
+        if u:
+            if action == 'verify':
+                u.is_verified = True
+                flash(f'{u.username} තහවුරු කර ඇත', 'success')
+            elif action == 'delete':
+                db.session.delete(u)
+                flash(f'{u.username} මකා දමන ලදී', 'info')
+            db.session.commit()
+        return redirect(url_for('verify_users'))
+    unverified = User.query.filter_by(is_verified=False).order_by(User.created_at.desc()).all()
+    verified = User.query.filter_by(is_verified=True).order_by(User.created_at.desc()).all()
+    return render_template('verify_users.html', unverified=unverified, verified=verified, fmt_date=fmt_date)
+
 # ─────────────────────── Dashboard ───────────────────────
 
 @app.route('/')
+@login_required
 def index():
     total = Customer.query.count()
     by_stage = {}
@@ -153,6 +255,7 @@ def index():
 # ─────────────────────── DCs Customers ───────────────────────
 
 @app.route('/dcs_customers')
+@login_required
 def dcs_customers():
     search = request.args.get('search', '')
     stage_filter = request.args.get('stage', '')
@@ -178,6 +281,7 @@ def dcs_customers():
         fmt_date=fmt_date, stage_badge=stage_badge)
 
 @app.route('/dcs_customers/<int:id>')
+@login_required
 def dcs_customer_detail(id):
     c = Customer.query.get_or_404(id)
     return render_template('customer_detail.html', customer=c, fmt_date=fmt_date, stage_badge=stage_badge)
@@ -185,7 +289,11 @@ def dcs_customer_detail(id):
 # ─────────────────────── Reconnected ───────────────────────
 
 @app.route('/reconnected', methods=['GET', 'POST'])
+@login_required
 def reconnected():
+    if request.method == 'POST' and session.get('role') != 'admin':
+        flash('Access denied', 'danger')
+        return redirect(url_for('index'))
     if request.method == 'POST':
         action = request.form.get('action', '')
 
@@ -263,7 +371,11 @@ def reconnected():
 # ─────────────────────── Import (actual Excel format) ───────────────────────
 
 @app.route('/customers/import', methods=['GET', 'POST'])
+@login_required
 def import_customers():
+    if request.method == 'POST' and session.get('role') != 'admin':
+        flash('Access denied', 'danger')
+        return redirect(url_for('index'))
     if request.method == 'POST':
         if 'file' not in request.files:
             flash('කරුණාකර ගොනුවක් තෝරන්න', 'danger')
@@ -384,6 +496,7 @@ def import_customers():
     return render_template('import.html')
 
 @app.route('/customers/export')
+@login_required
 def export_customers():
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -417,6 +530,7 @@ def export_customers():
 # ─────────────────────── First Reminders (letter_type=1) ───────────────────────
 
 @app.route('/first_reminders')
+@login_required
 def first_reminders():
     search = request.args.get('search', '')
     scheme_filter = request.args.get('scheme', '')
@@ -450,6 +564,7 @@ def first_reminders():
         fmt_date=fmt_date, fmt_amount=fmt_amount)
 
 @app.route('/first_reminders/generate')
+@admin_required
 def generate_first_reminders():
     customers = Customer.query.filter(Customer.stage.in_(['disconnected', 'first_reminder'])).all()
     count = 0
@@ -468,6 +583,7 @@ def generate_first_reminders():
     return redirect(url_for('first_reminders'))
 
 @app.route('/first_reminders/send/<int:letter_id>', methods=['POST'])
+@admin_required
 def mark_first_reminder_sent(letter_id):
     letter = ReminderLetter.query.get_or_404(letter_id)
     letter.status = 'sent'
@@ -477,6 +593,7 @@ def mark_first_reminder_sent(letter_id):
     return redirect(url_for('first_reminders'))
 
 @app.route('/first_reminders/return/<int:letter_id>', methods=['POST'])
+@admin_required
 def mark_first_reminder_returned(letter_id):
     letter = ReminderLetter.query.get_or_404(letter_id)
     letter.status = 'returned'
@@ -487,6 +604,7 @@ def mark_first_reminder_returned(letter_id):
     return redirect(url_for('first_reminders'))
 
 @app.route('/first_reminders/deliver/<int:letter_id>', methods=['POST'])
+@admin_required
 def mark_first_reminder_delivered(letter_id):
     letter = ReminderLetter.query.get_or_404(letter_id)
     letter.status = 'delivered'
@@ -495,6 +613,7 @@ def mark_first_reminder_delivered(letter_id):
     return redirect(url_for('first_reminders'))
 
 @app.route('/first_reminders/pdf/<int:letter_id>')
+@admin_required
 def download_first_reminder_pdf(letter_id):
     letter = ReminderLetter.query.get_or_404(letter_id)
     c = letter.customer
@@ -608,6 +727,7 @@ def download_first_reminder_pdf(letter_id):
     return send_file(filepath, as_attachment=True, download_name=filename)
 
 @app.route('/first_reminders/print-pending')
+@admin_required
 def print_pending_first_reminders():
     letters = ReminderLetter.query.filter_by(status='pending', letter_type=1).all()
     if not letters:
@@ -737,7 +857,11 @@ def print_pending_first_reminders():
 # ─────────────────────── Ferrule Processing ───────────────────────
 
 @app.route('/ferrule_processing', methods=['GET', 'POST'])
+@login_required
 def ferrule_processing():
+    if request.method == 'POST' and session.get('role') != 'admin':
+        flash('Access denied', 'danger')
+        return redirect(url_for('index'))
     if request.method == 'POST':
         action = request.form.get('action')
         cid = request.form.get('customer_id')
@@ -798,6 +922,7 @@ def ferrule_processing():
 # ─────────────────────── OIC Orders ───────────────────────
 
 @app.route('/oic')
+@login_required
 def oic_list():
     search = request.args.get('search', '')
     status_filter = request.args.get('status', '')
@@ -830,6 +955,7 @@ def oic_list():
         fmt_date=fmt_date, fmt_amount=fmt_amount)
 
 @app.route('/oic/generate')
+@admin_required
 def generate_oic_orders():
     customers = Customer.query.filter_by(stage='ferrule_approved').all()
     count = 0
@@ -853,6 +979,7 @@ def generate_oic_orders():
     return redirect(url_for('oic_list'))
 
 @app.route('/oic/generate-scheme/<scheme>')
+@admin_required
 def generate_oic_scheme(scheme):
     customers = Customer.query.filter_by(stage='ferrule_approved', scheme=scheme).all()
     count = 0
@@ -876,6 +1003,7 @@ def generate_oic_scheme(scheme):
     return redirect(url_for('oic_list'))
 
 @app.route('/oic/pdf/<int:order_id>')
+@admin_required
 def download_oic_pdf(order_id):
     order = OICOrder.query.get_or_404(order_id)
     c = order.customer
@@ -997,6 +1125,7 @@ def download_oic_pdf(order_id):
     return send_file(filepath, as_attachment=True, download_name=filename)
 
 @app.route('/oic/complete/<int:order_id>', methods=['POST'])
+@admin_required
 def complete_oic(order_id):
     order = OICOrder.query.get_or_404(order_id)
     order.status = 'completed'
@@ -1008,6 +1137,7 @@ def complete_oic(order_id):
 # ─────────────────────── Second Reminders (letter_type=2) ───────────────────────
 
 @app.route('/second_reminders')
+@login_required
 def second_reminders():
     search = request.args.get('search', '')
     scheme_filter = request.args.get('scheme', '')
@@ -1041,6 +1171,7 @@ def second_reminders():
         fmt_date=fmt_date, fmt_amount=fmt_amount)
 
 @app.route('/second_reminders/generate')
+@admin_required
 def generate_second_reminders():
     # Customers who are in oic_issued or second_reminder stage
     customers = Customer.query.filter(Customer.stage.in_(['oic_issued', 'second_reminder'])).all()
@@ -1060,6 +1191,7 @@ def generate_second_reminders():
     return redirect(url_for('second_reminders'))
 
 @app.route('/second_reminders/send/<int:letter_id>', methods=['POST'])
+@admin_required
 def mark_second_reminder_sent(letter_id):
     letter = ReminderLetter.query.get_or_404(letter_id)
     letter.status = 'sent'
@@ -1069,6 +1201,7 @@ def mark_second_reminder_sent(letter_id):
     return redirect(url_for('second_reminders'))
 
 @app.route('/second_reminders/return/<int:letter_id>', methods=['POST'])
+@admin_required
 def mark_second_reminder_returned(letter_id):
     letter = ReminderLetter.query.get_or_404(letter_id)
     letter.status = 'returned'
@@ -1079,6 +1212,7 @@ def mark_second_reminder_returned(letter_id):
     return redirect(url_for('second_reminders'))
 
 @app.route('/second_reminders/deliver/<int:letter_id>', methods=['POST'])
+@admin_required
 def mark_second_reminder_delivered(letter_id):
     letter = ReminderLetter.query.get_or_404(letter_id)
     letter.status = 'delivered'
@@ -1087,6 +1221,7 @@ def mark_second_reminder_delivered(letter_id):
     return redirect(url_for('second_reminders'))
 
 @app.route('/second_reminders/pdf/<int:letter_id>')
+@admin_required
 def download_second_reminder_pdf(letter_id):
     letter = ReminderLetter.query.get_or_404(letter_id)
     c = letter.customer
@@ -1180,6 +1315,7 @@ def download_second_reminder_pdf(letter_id):
     return send_file(filepath, as_attachment=True, download_name=filename)
 
 @app.route('/second_reminders/print-pending')
+@admin_required
 def print_pending_second_reminders():
     letters = ReminderLetter.query.filter_by(status='pending', letter_type=2).all()
     if not letters:
@@ -1291,6 +1427,7 @@ def print_pending_second_reminders():
 # ─────────────────────── Legal Proceed ───────────────────────
 
 @app.route('/legal_proceed')
+@login_required
 def legal_proceed():
     search = request.args.get('search', '')
     scheme_filter = request.args.get('scheme', '')
@@ -1325,6 +1462,7 @@ def legal_proceed():
         fmt_date=fmt_date, fmt_amount=fmt_amount)
 
 @app.route('/legal_proceed/generate-report')
+@admin_required
 def generate_legal_proceed_report():
     eligible = []
     customers = Customer.query.filter(Customer.stage.in_(['second_reminder', 'legal'])).all()
@@ -1401,6 +1539,7 @@ def generate_legal_proceed_report():
 # ─────────────────────── API ───────────────────────
 
 @app.route('/api/customer/<path:account_no>')
+@admin_required
 def api_customer(account_no):
     c = Customer.query.filter_by(account_no=account_no).first()
     if c:
@@ -1414,6 +1553,7 @@ def api_customer(account_no):
 # ─────────────────────── Direct Import from Storage ───────────────────────
 
 @app.route('/import-from-storage')
+@admin_required
 def import_from_storage():
     filepath = os.path.join(STORAGE_DIR, 'Meter Discon Consumer 2025-10.xlsx')
     if not os.path.exists(filepath):
