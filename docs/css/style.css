@@ -25,6 +25,17 @@ body { font-family: 'Iskoola Pota', 'Noto Sans Sinhala', 'Segoe UI', sans-serif;
 .page { display: none; }
 .page.active { display: block; }
 .scheme-badge { background-color: #6c757d; color: #fff; }
+.login-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #1a3a5c 0%, #0d2137 100%); display: flex; align-items: center; justify-content: center; z-index: 10000; }
+.login-overlay .login-card { background: #fff; border-radius: 1.5rem; padding: 2.5rem; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 400px; width: 100%; }
+.login-overlay .login-card .brand { text-align: center; margin-bottom: 1.5rem; }
+.login-overlay .login-card .brand i { font-size: 2.5rem; color: #1a3a5c; }
+.login-overlay .login-card .brand h2 { color: #1a3a5c; font-weight: bold; margin-top: 0.3rem; font-size: 1.5rem; }
+.login-overlay .login-card .brand small { color: #6b7a8a; font-size: 0.85rem; }
+.login-overlay .login-lang { text-align: center; font-size: 0.8rem; }
+.login-overlay .login-lang a { color: #1a3a5c; text-decoration: none; padding: 0.1rem 0.4rem; border-radius: 0.3rem; cursor: pointer; }
+.login-overlay .login-lang a:hover, .login-overlay .login-lang a.active { background: rgba(26,58,92,0.1); text-decoration: underline; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }
+.login-overlay .shake { animation: shake 0.4s; }
 @media print { .sidebar, .no-print { display: none; } .main-content { margin-left: 0; padding: 0; } }
 .mobile-nav { display: none; }
 @media (max-width: 767px) { .sidebar { display: none; } .main-content { padding: 1rem; } .mobile-nav { display: block; } .stat-card .number { font-size: 1.3rem; } }

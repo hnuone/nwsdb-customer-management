@@ -1,4 +1,43 @@
-﻿// ─── SPA Navigation ───
+﻿// ─── Users ───
+const USERS = { admin: 'admin123', user: 'user123' };
+
+// ─── Auth ───
+function checkAuth() {
+    var logged = localStorage.getItem('loggedIn');
+    if (logged === 'true') {
+        document.getElementById('login-overlay').style.display = 'none';
+        document.getElementById('app-wrapper').style.display = 'block';
+    } else {
+        document.getElementById('login-overlay').style.display = 'flex';
+        document.getElementById('app-wrapper').style.display = 'none';
+    }
+    translatePage();
+}
+
+function doLogin() {
+    var username = document.getElementById('login-username').value.trim();
+    var password = document.getElementById('login-password').value;
+    var errEl = document.getElementById('login-error');
+    if (USERS[username] && USERS[username] === password) {
+        localStorage.setItem('loggedIn', 'true');
+        errEl.style.display = 'none';
+        checkAuth();
+        navigate('dashboard');
+    } else {
+        errEl.textContent = _('Invalid username or password');
+        errEl.style.display = 'block';
+        document.querySelector('.login-overlay .login-card').classList.add('shake');
+        setTimeout(function() { document.querySelector('.login-overlay .login-card').classList.remove('shake'); }, 500);
+        document.getElementById('login-password').value = '';
+    }
+}
+
+function doLogout() {
+    localStorage.removeItem('loggedIn');
+    checkAuth();
+}
+
+// ─── SPA Navigation ───
 function navigate(page) { location.hash = page; }
 
 function getPage() { return location.hash.slice(1) || 'dashboard'; }
@@ -19,14 +58,13 @@ function renderPage() {
 }
 
 window.addEventListener('hashchange', renderPage);
-window.addEventListener('load', renderPage);
+window.addEventListener('load', function() { checkAuth(); renderPage(); });
 
 // ─── Language ───
 function setLang(code) {
     localStorage.setItem('lang', code);
-    document.querySelectorAll('.lang-switch a').forEach(function(a) { a.classList.remove('active'); });
-    var el = document.querySelector('.lang-switch a[data-lang="' + code + '"]');
-    if (el) el.classList.add('active');
+    document.querySelectorAll('a[data-lang]').forEach(function(a) { a.classList.remove('active'); });
+    document.querySelectorAll('a[data-lang="' + code + '"]').forEach(function(a) { a.classList.add('active'); });
     document.documentElement.lang = code;
     renderPage();
 }

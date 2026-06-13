@@ -9,6 +9,45 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+<!-- Login Overlay -->
+<div id="login-overlay" class="login-overlay">
+    <div class="login-card">
+        <div class="brand">
+            <i class="bi bi-droplet"></i>
+            <h2>NWSDB</h2>
+            <small data-i18n="Matara Regional Office">Matara Regional Office</small>
+        </div>
+        <div class="login-lang mb-3">
+            <i class="bi bi-globe2"></i>
+            <a data-lang="si" onclick="setLang('si')" data-i18n="Sinhala">Sinhala</a> |
+            <a data-lang="en" onclick="setLang('en')" data-i18n="English">English</a>
+        </div>
+        <form onsubmit="event.preventDefault(); doLogin();">
+            <div class="mb-3">
+                <label class="form-label" data-i18n="Username">Username</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                    <input type="text" id="login-username" class="form-control" placeholder="Username" required>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" data-i18n="Password">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                    <input type="password" id="login-password" class="form-control" placeholder="Password" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-nwsdb w-100 mt-2" data-i18n="Login">Login</button>
+        </form>
+        <div id="login-error" class="text-danger small mt-2 text-center" style="display:none"></div>
+        <div class="text-center mt-2">
+            <small class="text-muted">admin / admin123</small>
+        </div>
+    </div>
+</div>
+
+<!-- App Wrapper -->
+<div id="app-wrapper" style="display:none">
 <div class="container-fluid">
     <div class="row">
         <!-- Sidebar -->
@@ -30,6 +69,9 @@
                 <hr style="border-color:rgba(255,255,255,0.1);margin:0.5rem 1rem;">
                 <div class="section-label" data-i18n="System">System</div>
                 <a class="nav-link" data-page="import" onclick="navigate('import')"><i class="bi bi-upload"></i> <span data-i18n="Import Data">Import Data</span></a>
+                <hr style="border-color:rgba(255,255,255,0.1);margin:0.5rem 1rem;">
+                <div class="section-label" data-i18n="Account">Account</div>
+                <a class="nav-link" onclick="doLogout()" style="cursor:pointer"><i class="bi bi-box-arrow-right"></i> <span data-i18n="Logout">Logout</span></a>
             </nav>
             <div class="lang-switch mt-auto position-absolute bottom-0 start-0 end-0 p-3">
                 <i class="bi bi-globe2"></i>
@@ -242,6 +284,7 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

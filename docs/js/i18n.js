@@ -117,6 +117,12 @@ const TRANSLATIONS = {
         'Awaiting Execution': 'ක්‍රියාත්මක කිරීමට බලා සිටී',
         'Total Orders': 'මුළු නියෝග',
         'Account No / Name / Address': 'ගිණුම් අංකය / නම / ලිපිනය',
+        'Login': 'පිවිසෙන්න',
+        'Logout': 'ඉවත් වන්න',
+        'Username': 'පරිශීලක නම',
+        'Password': 'මුරපදය',
+        'Account': 'ගිණුම',
+        'Invalid username or password': 'වලංගු නොවන පරිශීලක නම හෝ මුරපදය',
     }
 };
 
