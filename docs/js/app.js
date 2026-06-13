@@ -1,4 +1,4 @@
-﻿// ─── Auth ───
+// ─── Auth ───
 var currentUser = null;
 
 function checkAuth() {
