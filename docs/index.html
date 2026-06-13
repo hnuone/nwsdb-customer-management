@@ -12,36 +12,73 @@
 <!-- Login Overlay -->
 <div id="login-overlay" class="login-overlay">
     <div class="login-card">
-        <div class="brand">
-            <i class="bi bi-droplet"></i>
-            <h2>NWSDB</h2>
-            <small data-i18n="Matara Regional Office">Matara Regional Office</small>
-        </div>
-        <div class="login-lang mb-3">
-            <i class="bi bi-globe2"></i>
-            <a data-lang="si" onclick="setLang('si')" data-i18n="Sinhala">Sinhala</a> |
-            <a data-lang="en" onclick="setLang('en')" data-i18n="English">English</a>
-        </div>
-        <form onsubmit="event.preventDefault(); doLogin();">
-            <div class="mb-3">
-                <label class="form-label" data-i18n="Username">Username</label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-person"></i></span>
-                    <input type="text" id="login-username" class="form-control" placeholder="Username" required>
-                </div>
+        <!-- Login Form -->
+        <div id="login-form">
+            <div class="brand">
+                <i class="bi bi-droplet"></i>
+                <h2>NWSDB</h2>
+                <small data-i18n="Matara Regional Office">Matara Regional Office</small>
             </div>
-            <div class="mb-3">
-                <label class="form-label" data-i18n="Password">Password</label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                    <input type="password" id="login-password" class="form-control" placeholder="Password" required>
-                </div>
+            <div class="login-lang mb-3">
+                <i class="bi bi-globe2"></i>
+                <a data-lang="si" onclick="setLang('si')" data-i18n="Sinhala">Sinhala</a> |
+                <a data-lang="en" onclick="setLang('en')" data-i18n="English">English</a>
             </div>
-            <button type="submit" class="btn btn-nwsdb w-100 mt-2" data-i18n="Login">Login</button>
-        </form>
-        <div id="login-error" class="text-danger small mt-2 text-center" style="display:none"></div>
-        <div class="text-center mt-2">
-            <small class="text-muted">admin / admin123</small>
+            <form onsubmit="event.preventDefault(); doLogin();">
+                <div class="mb-3">
+                    <label class="form-label" data-i18n="Username">Username</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                        <input type="text" id="login-username" class="form-control" placeholder="Username" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" data-i18n="Password">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                        <input type="password" id="login-password" class="form-control" placeholder="Password" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-nwsdb w-100 mt-2" data-i18n="Login">Login</button>
+            </form>
+            <div id="login-error" class="text-danger small mt-2 text-center" style="display:none"></div>
+            <div class="text-center mt-2">
+                <a href="javascript:void(0)" onclick="showRegister()" data-i18n="Create new account">Create new account</a>
+            </div>
+        </div>
+
+        <!-- Register Form -->
+        <div id="register-form" style="display:none">
+            <div class="brand">
+                <i class="bi bi-droplet"></i>
+                <h2>NWSDB</h2>
+                <small data-i18n="Create new account">Create new account</small>
+            </div>
+            <div class="login-lang mb-3">
+                <i class="bi bi-globe2"></i>
+                <a data-lang="si" onclick="setLang('si')" data-i18n="Sinhala">Sinhala</a> |
+                <a data-lang="en" onclick="setLang('en')" data-i18n="English">English</a>
+            </div>
+            <form onsubmit="event.preventDefault(); doRegister();">
+                <div class="mb-2">
+                    <label class="form-label" data-i18n="Username">Username</label>
+                    <input type="text" id="reg-username" class="form-control" required>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label" data-i18n="Password">Password</label>
+                    <input type="password" id="reg-password" class="form-control" required>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label" data-i18n="Confirm Password">Confirm Password</label>
+                    <input type="password" id="reg-confirm" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-nwsdb w-100 mt-2" data-i18n="Register">Register</button>
+            </form>
+            <div id="reg-error" class="text-danger small mt-2 text-center" style="display:none"></div>
+            <div id="reg-success" class="text-success small mt-2 text-center" style="display:none"></div>
+            <div class="text-center mt-2">
+                <a href="javascript:void(0)" onclick="showLogin()" data-i18n="Already have an account? Login">Already have an account? Login</a>
+            </div>
         </div>
     </div>
 </div>
@@ -71,6 +108,13 @@
                 <a class="nav-link" data-page="import" onclick="navigate('import')"><i class="bi bi-upload"></i> <span data-i18n="Import Data">Import Data</span></a>
                 <hr style="border-color:rgba(255,255,255,0.1);margin:0.5rem 1rem;">
                 <div class="section-label" data-i18n="Account">Account</div>
+                <div id="sidebar-user-info" class="px-3 py-1 text-white small" style="display:none">
+                    <i class="bi bi-person-circle"></i> <span id="sidebar-username"></span>
+                    <span id="sidebar-role-badge"></span>
+                </div>
+                <a class="nav-link" data-page="verify-users" onclick="navigate('verify-users')" id="sidebar-verify-link" style="display:none">
+                    <i class="bi bi-person-check"></i> <span data-i18n="Verify Users">Verify Users</span>
+                </a>
                 <a class="nav-link" onclick="doLogout()" style="cursor:pointer"><i class="bi bi-box-arrow-right"></i> <span data-i18n="Logout">Logout</span></a>
             </nav>
             <div class="lang-switch mt-auto position-absolute bottom-0 start-0 end-0 p-3">
@@ -268,6 +312,25 @@
                 <div class="table-container mb-3"><h5 class="mb-3"><span data-i18n="Letter Management">Letter Management</span></h5><div class="table-responsive"><table class="table table-hover"><thead class="table-light"><tr><th>Type</th><th data-i18n="Date">Date</th><th data-i18n="Status">Status</th><th data-i18n="Remarks">Remarks</th></tr></thead><tbody id="cd-letters"></tbody></table></div></div>
                 <div class="table-container mb-3"><h5 class="mb-3">OIC Orders</h5><div class="table-responsive"><table class="table table-hover"><thead class="table-light"><tr><th data-i18n="Reference No">Reference No</th><th data-i18n="Order Date">Order Date</th><th data-i18n="Status">Status</th><th data-i18n="Total Amount Due">Total Amount Due</th></tr></thead><tbody id="cd-oic"></tbody></table></div></div>
                 <a class="btn btn-nwsdb" href="javascript:void(0)" onclick="navigate('dcs-customers')"><i class="bi bi-arrow-left"></i> <span data-i18n="Back">Back</span></a>
+            </div>
+
+            <!-- Verify Users (admin only) -->
+            <div class="page" id="page-verify-users">
+                <div class="page-title"><i class="bi bi-person-check"></i> <span data-i18n="User Management">User Management</span></div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="table-container">
+                            <h5 class="mb-3"><i class="bi bi-hourglass-split text-warning"></i> <span data-i18n="Pending Verification">Pending Verification</span> (<span id="vu-pending-count">0</span>)</h5>
+                            <div class="table-responsive"><table class="table table-hover"><thead class="table-light"><tr><th data-i18n="Username">Username</th><th data-i18n="Action">Action</th></tr></thead><tbody id="vu-pending-list"></tbody></table></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="table-container">
+                            <h5 class="mb-3"><i class="bi bi-check-circle text-success"></i> <span data-i18n="Verified Users">Verified Users</span> (<span id="vu-verified-count">0</span>)</h5>
+                            <div class="table-responsive"><table class="table table-hover"><thead class="table-light"><tr><th data-i18n="Username">Username</th><th data-i18n="Role">Role</th></tr></thead><tbody id="vu-verified-list"></tbody></table></div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Import page -->

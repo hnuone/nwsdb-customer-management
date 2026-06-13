@@ -119,6 +119,19 @@ for (let i = 1; i <= 55; i++) {
     }
 }
 
+// ─── User Management ───
+function getUsers() {
+    var data = localStorage.getItem('nwsdb_users');
+    if (!data) {
+        var defaults = [{ username: 'admin', password: 'admin123', role: 'admin', is_verified: true }];
+        localStorage.setItem('nwsdb_users', JSON.stringify(defaults));
+        return defaults;
+    }
+    return JSON.parse(data);
+}
+function saveUsers(users) { localStorage.setItem('nwsdb_users', JSON.stringify(users)); }
+function findUser(username) { return getUsers().find(function(u) { return u.username === username; }); }
+
 const data = { customers, disconnections, reminderLetters, oicOrders, SCHEMES, STAGES, STAGE_LABELS, STAGE_BADGES };
 function schemeName(code) { return SCHEMES[code] || ''; }
 function stageBadge(stage) { return STAGE_BADGES[stage] || 'bg-secondary'; }

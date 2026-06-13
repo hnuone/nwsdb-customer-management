@@ -1,42 +1,169 @@
-﻿// ─── Users ───
-const USERS = { admin: 'admin123', user: 'user123' };
+﻿// ─── Auth ───
+var currentUser = null;
 
-// ─── Auth ───
 function checkAuth() {
     var overlay = document.getElementById('login-overlay');
     var wrapper = document.getElementById('app-wrapper');
     if (!overlay || !wrapper) return;
-    if (sessionStorage.getItem('nwsdb_logged') === '1') {
+    var logged = sessionStorage.getItem('nwsdb_logged');
+    if (logged === '1') {
+        var userData = sessionStorage.getItem('nwsdb_user');
+        if (userData) currentUser = JSON.parse(userData);
         overlay.style.display = 'none';
         wrapper.style.display = 'block';
+        updateSidebarUser();
     } else {
+        currentUser = null;
         overlay.style.display = 'flex';
         wrapper.style.display = 'none';
     }
     translatePage();
 }
 
+function updateSidebarUser() {
+    var info = document.getElementById('sidebar-user-info');
+    var nameEl = document.getElementById('sidebar-username');
+    var roleEl = document.getElementById('sidebar-role-badge');
+    var verifyLink = document.getElementById('sidebar-verify-link');
+    if (currentUser) {
+        info.style.display = 'block';
+        nameEl.textContent = currentUser.username;
+        roleEl.innerHTML = ' <span class="badge bg-' + (currentUser.role === 'admin' ? 'danger' : 'primary') + '" style="font-size:0.6rem;">' + currentUser.role + '</span>';
+        verifyLink.style.display = currentUser.role === 'admin' ? 'block' : 'none';
+    } else {
+        info.style.display = 'none';
+        verifyLink.style.display = 'none';
+    }
+}
+
 function doLogin() {
     var username = document.getElementById('login-username').value.trim();
     var password = document.getElementById('login-password').value;
     var errEl = document.getElementById('login-error');
-    if (USERS[username] && USERS[username] === password) {
-        sessionStorage.setItem('nwsdb_logged', '1');
-        errEl.style.display = 'none';
-        checkAuth();
-        navigate('dashboard');
-    } else {
+    var user = findUser(username);
+    if (!user || user.password !== password) {
         errEl.textContent = _('Invalid username or password');
         errEl.style.display = 'block';
         var card = document.querySelector('.login-overlay .login-card');
         if (card) { card.classList.add('shake'); setTimeout(function() { card.classList.remove('shake'); }, 500); }
         document.getElementById('login-password').value = '';
+        return;
     }
+    if (!user.is_verified) {
+        errEl.textContent = _('Your account is not yet verified. Please contact the administrator.');
+        errEl.style.display = 'block';
+        document.getElementById('login-password').value = '';
+        return;
+    }
+    sessionStorage.setItem('nwsdb_logged', '1');
+    sessionStorage.setItem('nwsdb_user', JSON.stringify({ username: user.username, role: user.role }));
+    errEl.style.display = 'none';
+    showLogin();
+    checkAuth();
+    navigate('dashboard');
 }
 
 function doLogout() {
     sessionStorage.removeItem('nwsdb_logged');
+    sessionStorage.removeItem('nwsdb_user');
+    currentUser = null;
     checkAuth();
+}
+
+function showLogin() {
+    document.getElementById('login-form').style.display = 'block';
+    document.getElementById('register-form').style.display = 'none';
+    document.getElementById('login-error').style.display = 'none';
+    document.getElementById('login-username').value = '';
+    document.getElementById('login-password').value = '';
+    translatePage();
+}
+
+function showRegister() {
+    document.getElementById('login-form').style.display = 'none';
+    document.getElementById('register-form').style.display = 'block';
+    document.getElementById('reg-error').style.display = 'none';
+    document.getElementById('reg-success').style.display = 'none';
+    document.getElementById('reg-username').value = '';
+    document.getElementById('reg-password').value = '';
+    document.getElementById('reg-confirm').value = '';
+    translatePage();
+}
+
+function doRegister() {
+    var username = document.getElementById('reg-username').value.trim();
+    var password = document.getElementById('reg-password').value;
+    var confirm = document.getElementById('reg-confirm').value;
+    var errEl = document.getElementById('reg-error');
+    var successEl = document.getElementById('reg-success');
+    errEl.style.display = 'none';
+    successEl.style.display = 'none';
+    if (!username || !password) {
+        errEl.textContent = _('Please fill all fields');
+        errEl.style.display = 'block';
+        return;
+    }
+    if (password !== confirm) {
+        errEl.textContent = _('Passwords do not match');
+        errEl.style.display = 'block';
+        return;
+    }
+    if (password.length < 4) {
+        errEl.textContent = _('Password must be at least 4 characters');
+        errEl.style.display = 'block';
+        return;
+    }
+    var existing = findUser(username);
+    if (existing) {
+        errEl.textContent = _('Username already exists');
+        errEl.style.display = 'block';
+        return;
+    }
+    var users = getUsers();
+    users.push({ username: username, password: password, role: 'user', is_verified: false });
+    saveUsers(users);
+    successEl.textContent = _('Account created successfully. Please wait for admin verification.');
+    successEl.style.display = 'block';
+    document.getElementById('reg-username').value = '';
+    document.getElementById('reg-password').value = '';
+    document.getElementById('reg-confirm').value = '';
+    translatePage();
+}
+
+// ─── Verify Users (admin) ───
+function renderVerifyUsers() {
+    var users = getUsers();
+    var pending = users.filter(function(u) { return !u.is_verified; });
+    var verified = users.filter(function(u) { return u.is_verified; });
+    document.getElementById('vu-pending-count').textContent = pending.length;
+    document.getElementById('vu-verified-count').textContent = verified.length;
+    var pl = document.getElementById('vu-pending-list');
+    if (pending.length === 0) {
+        pl.innerHTML = '<tr><td colspan="2" class="text-center text-muted py-3">' + _('No records found') + '</td></tr>';
+    } else {
+        pl.innerHTML = pending.map(function(u) {
+            return '<tr><td>' + u.username + '</td><td><button class="btn btn-sm btn-success" onclick="verifyUser(\'' + u.username + '\')"><i class="bi bi-check-lg"></i> ' + _('Verify') + '</button></td></tr>';
+        }).join('');
+    }
+    var vl = document.getElementById('vu-verified-list');
+    if (verified.length === 0) {
+        vl.innerHTML = '<tr><td colspan="2" class="text-center text-muted py-3">' + _('No records found') + '</td></tr>';
+    } else {
+        vl.innerHTML = verified.map(function(u) {
+            return '<tr><td>' + u.username + '</td><td><span class="badge bg-' + (u.role === 'admin' ? 'danger' : 'primary') + '">' + u.role + '</span></td></tr>';
+        }).join('');
+    }
+    translatePage();
+}
+
+function verifyUser(username) {
+    var users = getUsers();
+    var u = users.find(function(x) { return x.username === username; });
+    if (u) {
+        u.is_verified = true;
+        saveUsers(users);
+        renderVerifyUsers();
+    }
 }
 
 // Run auth check immediately
@@ -457,5 +584,6 @@ var renderers = {
     'oic-orders': renderOICOrders,
     'legal-proceed': renderLegalProceed,
     'customer-detail': function() { translatePage(); },
+    'verify-users': renderVerifyUsers,
     'import': function() { translatePage(); }
 };
