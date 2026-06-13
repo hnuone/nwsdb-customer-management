@@ -132,6 +132,7 @@ function doRegister() {
 
 // ─── Verify Users (admin) ───
 function renderVerifyUsers() {
+    if (!currentUser || currentUser.role !== 'admin') { navigate('dashboard'); return; }
     var users = getUsers();
     var pending = users.filter(function(u) { return !u.is_verified; });
     var verified = users.filter(function(u) { return u.is_verified; });
