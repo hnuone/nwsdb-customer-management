@@ -9,12 +9,12 @@ function checkAuth() {
     if (logged === '1') {
         var userData = sessionStorage.getItem('nwsdb_user');
         if (userData) currentUser = JSON.parse(userData);
-        overlay.style.display = 'none';
+        overlay.style.setProperty('display', 'none', 'important');
         wrapper.style.display = 'block';
         updateSidebarUser();
     } else {
         currentUser = null;
-        overlay.style.display = 'flex';
+        overlay.style.setProperty('display', 'flex', 'important');
         wrapper.style.display = 'none';
     }
     translatePage();
