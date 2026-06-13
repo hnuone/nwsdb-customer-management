@@ -3,13 +3,15 @@ const USERS = { admin: 'admin123', user: 'user123' };
 
 // ─── Auth ───
 function checkAuth() {
-    var logged = localStorage.getItem('loggedIn');
-    if (logged === 'true') {
-        document.getElementById('login-overlay').style.display = 'none';
-        document.getElementById('app-wrapper').style.display = 'block';
+    var overlay = document.getElementById('login-overlay');
+    var wrapper = document.getElementById('app-wrapper');
+    if (!overlay || !wrapper) return;
+    if (sessionStorage.getItem('nwsdb_logged') === '1') {
+        overlay.style.display = 'none';
+        wrapper.style.display = 'block';
     } else {
-        document.getElementById('login-overlay').style.display = 'flex';
-        document.getElementById('app-wrapper').style.display = 'none';
+        overlay.style.display = 'flex';
+        wrapper.style.display = 'none';
     }
     translatePage();
 }
@@ -19,23 +21,26 @@ function doLogin() {
     var password = document.getElementById('login-password').value;
     var errEl = document.getElementById('login-error');
     if (USERS[username] && USERS[username] === password) {
-        localStorage.setItem('loggedIn', 'true');
+        sessionStorage.setItem('nwsdb_logged', '1');
         errEl.style.display = 'none';
         checkAuth();
         navigate('dashboard');
     } else {
         errEl.textContent = _('Invalid username or password');
         errEl.style.display = 'block';
-        document.querySelector('.login-overlay .login-card').classList.add('shake');
-        setTimeout(function() { document.querySelector('.login-overlay .login-card').classList.remove('shake'); }, 500);
+        var card = document.querySelector('.login-overlay .login-card');
+        if (card) { card.classList.add('shake'); setTimeout(function() { card.classList.remove('shake'); }, 500); }
         document.getElementById('login-password').value = '';
     }
 }
 
 function doLogout() {
-    localStorage.removeItem('loggedIn');
+    sessionStorage.removeItem('nwsdb_logged');
     checkAuth();
 }
+
+// Run auth check immediately
+checkAuth();
 
 // ─── SPA Navigation ───
 function navigate(page) { location.hash = page; }
@@ -59,6 +64,7 @@ function renderPage() {
 
 window.addEventListener('hashchange', renderPage);
 window.addEventListener('load', function() { checkAuth(); renderPage(); });
+window.addEventListener('pageshow', function() { checkAuth(); });
 
 // ─── Language ───
 function setLang(code) {
