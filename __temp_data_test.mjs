@@ -143,3 +143,5 @@ function schemeName(code) { return SCHEMES[code] || ''; }
 function stageBadge(stage) { return STAGE_BADGES[stage] || 'bg-secondary'; }
 function fmtDate(d) { if (!d) return '-'; const dt = new Date(d); return dt.toLocaleDateString('en-CA'); }
 function fmtAmount(n) { return (n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+export { customers, disconnections, reminderLetters, oicOrders, data, SCHEMES, STAGES };
